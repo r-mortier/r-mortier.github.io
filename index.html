@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Riccardo Mortier — Portfolio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
+<style>
+:root {
+  --bg:#050409;
+  --bg-elevated:#0b0a13;
+  --bg-soft:#121022;
+  --accent:#dc2626;
+  --accent-soft:rgba(220,38,38,.15);
+  --accent-strong:#ef4444;
+  --text:#f3f4f6;
+  --muted:#9ca3af;
+  --border-subtle:rgba(148,163,184,.15);
+  --radius-xl:18px;
+  --shadow-soft:0 18px 45px rgba(0,0,0,.85);
+  --shadow-soft-sm:0 10px 30px rgba(0,0,0,.65);
+  --transition-fast:.18s ease-out;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;
+  background:radial-gradient(circle at top,#0f0a12 0,#020206 55%,#000 100%);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+}
+a{text-decoration:none;color:inherit}
+.page{width:100%;max-width:1200px;padding:24px 16px 40px}
+@media(min-width:768px){.page{padding:32px 24px 48px}}
+
+.top-bar{display:flex;flex-direction:column;gap:12px;margin-bottom:28px}
+.brand-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-logo{
+  width:34px;height:34px;border-radius:14px;
+  background:radial-gradient(circle at 25% 25%,#ef4444,#7c2d12);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 1px rgba(255,255,255,.1),0 10px 25px rgba(0,0,0,.9);
+  font-weight:700;font-size:18px;letter-spacing:.04em
+}
+.brand-meta{display:flex;flex-direction:column;gap:2px}
+.brand-meta-title{font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:11px;color:var(--muted)}
+.brand-meta-domain{font-weight:500;font-size:14px}
+.brand-meta-domain span{opacity:.75;font-weight:400;font-size:13px}
+.brand-link-main{
+  font-size:12px;color:var(--muted);border-radius:999px;
+  border:1px solid rgba(148,163,184,.35);
+  padding:4px 10px;display:flex;align-items:center;gap:6px;
+  backdrop-filter:blur(16px);
+  background:linear-gradient(135deg,rgba(15,15,25,.9),rgba(0,0,0,.6));
+  box-shadow:0 8px 24px rgba(0,0,0,.85)
+}
+.brand-link-main span.dot{
+  width:6px;height:6px;border-radius:999px;background:#16a34a;
+  box-shadow:0 0 0 5px rgba(22,163,74,.25)
+}
+
+.ticker-wrapper{
+  border-radius:999px;overflow:hidden;
+  border:1px solid rgba(148,163,184,.45);
+  background:radial-gradient(circle at top left,#1c1917 0,#020202 60%);
+  box-shadow:0 12px 30px rgba(0,0,0,.9)
+}
+
+.layout{display:grid;grid-template-columns:1.1fr 1.4fr;gap:24px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+.card{
+  border-radius:var(--radius-xl);
+  background:radial-gradient(circle at top left,#1a1416 0,#050409 65%);
+  border:1px solid var(--border-subtle);
+  box-shadow:var(--shadow-soft);
+  padding:22px 20px 20px;
+  position:relative;
+  overflow:hidden
+}
+.card::before{
+  content:"";position:absolute;inset:-120px;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(239,68,68,.16),transparent 42%),
+    radial-gradient(circle at 100% 0%,rgba(127,29,29,.25),transparent 50%);
+  mix-blend-mode:soft-light;opacity:.9
+}
+.card-inner{position:relative;z-index:1}
+
+.card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.card-title-group{display:flex;flex-direction:column;gap:4px}
+.card-title{font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.card-subtitle{font-size:12px;color:var(--muted);opacity:.85}
+.pill{
+  font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+  padding:4px 9px;border-radius:999px;
+  border:1px solid rgba(148,163,184,.45);
+  background:rgba(0,0,0,.7);
+  display:inline-flex;align-items:center;gap:6px;color:var(--muted)
+}
+.pill-badge{width:7px;height:7px;border-radius:999px;background:#22c55e}
+
+.hero-title{font-size:28px;line-height:1.25;margin-bottom:10px;font-weight:600}
+.hero-title span.gradient{
+  background:linear-gradient(135deg,#fca5a5,#ef4444,#b91c1c);
+  -webkit-background-clip:text;color:transparent
+}
+.hero-subtitle{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:18px}
+.hero-subtitle strong{color:#f9fafb;font-weight:500}
+
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.hero-meta-item{
+  font-size:11px;color:var(--muted);border-radius:999px;
+  border:1px solid rgba(148,163,184,.4);
+  padding:4px 9px;display:inline-flex;align-items:center;gap:6px;
+  backdrop-filter:blur(12px);background:rgba(12,10,14,.9)
+}
+.hero-meta-dot{width:6px;height:6px;border-radius:999px;background:#fb7185}
+
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px}
+.btn{
+  border-radius:999px;padding:8px 14px;font-size:12px;font-weight:500;
+  border:1px solid transparent;display:inline-flex;align-items:center;gap:8px;
+  cursor:pointer;transition:all var(--transition-fast);
+  background:transparent;color:var(--text)
+}
+.btn-primary{
+  background:linear-gradient(135deg,#ef4444,#7c2d12);
+  border-color:rgba(255,186,186,.4);
+  box-shadow:0 14px 30px rgba(127,29,29,.55)
+}
+.btn-primary:hover{transform:translateY(-1px) scale(1.01);box-shadow:0 20px 40px rgba(0,0,0,.7)}
+.btn-ghost{
+  border-color:rgba(148,163,184,.45);
+  background:rgba(0,0,0,.65)
+}
+.btn-ghost:hover{
+  border-color:rgba(255,255,255,.6);
+  background:rgba(0,0,0,.85);
+  transform:translateY(-1px);
+  box-shadow:var(--shadow-soft-sm)
+}
+.btn-icon{font-size:14px;opacity:.9}
+
+.badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.badge{
+  font-size:11px;padding:4px 10px;border-radius:999px;
+  background:rgba(0,0,0,.7);
+  border:1px solid rgba(148,163,184,.45);
+  color:var(--muted);display:inline-flex;align-items:center;gap:6px
+}
+.badge-pill{width:6px;height:6px;border-radius:999px;background:#ef4444}
+
+.market-card{
+  background:radial-gradient(circle at top,#08060a 0,#000 85%);
+  border-radius:var(--radius-xl);
+  border:1px solid rgba(148,163,184,.45);
+  box-shadow:var(--shadow-soft);
+  padding:18px 18px 16px;
+  display:flex;flex-direction:column;gap:14px;
+  position:relative;overflow:hidden
+}
+.market-card::before{
+  content:"";position:absolute;inset:-140px;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(239,68,68,.28),transparent 45%),
+    radial-gradient(circle at 100% 0%,rgba(185,28,28,.25),transparent 50%);
+  mix-blend-mode:soft-light;opacity:.85
+}
+.market-inner{position:relative;z-index:1}
+.market-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.market-title{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.market-pinned{font-size:11px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.market-tag{
+  padding:3px 8px;border-radius:999px;
+  border:1px solid rgba(148,163,184,.45);
+  background:rgba(12,10,14,.9);
+  font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)
+}
+
+.market-body{display:flex;flex-direction:column;gap:10px}
+.search-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.search-input-wrap{flex:1;position:relative}
+.search-input-wrap input{
+  width:100%;border-radius:999px;border:1px solid rgba(148,163,184,.6);
+  background:rgba(0,0,0,.85);
+  padding:7px 11px 7px 30px;font-size:12px;color:var(--text);
+  outline:none;transition:all var(--transition-fast)
+}
+.search-input-wrap input::placeholder{color:rgba(148,163,184,.7)}
+.search-input-wrap input:focus{
+  border-color:var(--accent-strong);
+  box-shadow:0 0 0 1px rgba(239,68,68,.7),0 18px 38px rgba(0,0,0,.85);
+  background:#000;transform:translateY(-1px)
+}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:rgba(148,163,184,.9)}
+
+.btn-search{
+  padding:7px 13px;font-size:11px;border-radius:999px;
+  border:1px solid rgba(255,186,186,.55);
+  background:linear-gradient(135deg,#ef4444,#7c2d12);
+  color:#fef2f2;font-weight:500;
+  cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  box-shadow:0 12px 28px rgba(127,29,29,.6);
+  transition:all var(--transition-fast)
+}
+.btn-search:hover{
+  transform:translateY(-1px) scale(1.01);
+  box-shadow:0 18px 40px rgba(0,0,0,.9);
+  filter:brightness(1.03)
+}
+.btn-search span.icon{font-size:10px;opacity:.9}
+
+.search-hint{font-size:11px;color:var(--muted);opacity:.9}
+.search-hint code{
+  background:rgba(0,0,0,.7);
+  border-radius:999px;
+  padding:2px 7px;
+  border:1px solid rgba(148,163,184,.4);
+  font-size:10px;
+  font-family:ui-monospace,Consolas,monospace;
+  color:#f9fafb
+}
+
+.chart-shell{
+  margin-top:8px;border-radius:16px;
+  border:1px solid rgba(148,163,184,.45);
+  overflow:hidden;
+  background:radial-gradient(circle at top,#09080b 0,#000 80%);
+  box-shadow:0 18px 40px rgba(0,0,0,.9)
+}
+.chart-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;
+  border-bottom:1px solid rgba(31,31,31,.9);
+  background:linear-gradient(120deg,rgba(0,0,0,.98),rgba(0,0,0,.9))
+}
+.chart-symbol{display:flex;flex-direction:column;gap:2px}
+.chart-symbol-main{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.chart-symbol-sub{font-size:11px;color:var(--muted)}
+.chart-status{
+  font-size:10px;text-transform:uppercase;letter-spacing:.1em;
+  padding:3px 8px;border-radius:999px;
+  border:1px solid rgba(148,163,184,.6);
+  background:rgba(0,0,0,.85);
+  color:var(--muted);display:inline-flex;align-items:center;gap:6px
+}
+.chart-status-dot{
+  width:6px;height:6px;border-radius:999px;
+  background:#16a34a;box-shadow:0 0 0 3px rgba(34,197,94,.35)
+}
+.chart-container{height:320px}
+@media(max-width:600px){.chart-container{height:260px}}
+
+.footer{
+  margin-top:26px;font-size:11px;color:var(--muted);
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:8px;opacity:.9
+}
+.footer-links{display:flex;gap:12px;font-size:11px}
+.footer a{color:var(--muted)}
+.footer a:hover{color:#f9fafb}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+<header class="top-bar">
+  <div class="brand-row">
+    <div class="brand">
+      <div class="brand-logo">M</div>
+      <div class="brand-meta">
+        <div class="brand-meta-title">Portfolio</div>
+        <div class="brand-meta-domain">me.mortier.dev <span>/ intro to mortier.dev</span></div>
+      </div>
+    </div>
+    <a class="brand-link-main" href="https://mortier.dev" target="_blank" rel="noreferrer">
+      <span class="dot"></span>
+      <span>Visit main site</span>
+      <span style="font-size:14px;">↗</span>
+    </a>
+  </div>
+
+  <div class="ticker-wrapper">
+    <div class="tradingview-widget-container">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript">
+        new TradingView.widget({
+          container_id: "tradingview-ticker",
+          width: "100%",
+          height: 32,
+          symbols: [
+            { proName: "BINANCE:ETHUSDT", title: "ETH / USDT" },
+            { proName: "BINANCE:XRPUSDT", title: "XRP / USDT" },
+            { proName: "OANDA:XAUUSD", title: "XAU / USD" },
+            { proName: "OANDA:EURUSD", title: "EUR / USD" }
+          ],
+          showSymbolLogo: true,
+          colorTheme: "dark",
+          isTransparent: true,
+          displayMode: "adaptive",
+          locale: "en"
+        });
+      </script>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+
+<section class="card">
+  <div class="card-inner">
+    <div class="card-header">
+      <div class="card-title-group">
+        <div class="card-title">About</div>
+        <div class="card-subtitle">Who I am and where I’m headed</div>
+      </div>
+      <div class="pill">
+        <span class="pill-badge"></span>
+        Open to opportunities
+      </div>
+    </div>
+
+    <div class="hero">
+      <h1 class="hero-title">
+        Hi, I’m <span class="gradient">Riccardo Mortier</span>.<br />
+        I’m a beginner <span class="gradient">crypto & forex day-trader</span> and web developer from Belgium.
+      </h1>
+
+      <p class="hero-subtitle">
+        I’m 21 years old and focused on improving my trading discipline and consistency in
+        <strong>crypto and FX</strong>, while continuing to explore new technologies and build useful tools.
+        I graduated as a <strong>web developer</strong> and enjoy combining trading concepts with clean, practical web projects.
+      </p>
+
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <span class="hero-meta-dot"></span>
+          Learning and improving daily
+        </div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-dot" style="background:#fb923c;"></span>
+          Belgium · CET timezone
+        </div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-dot" style="background:#a78bfa;"></span>
+          Passionate about markets, tech and automation
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <a href="mailto:hi@mortier.dev" class="btn btn-primary">
+          <span class="btn-icon">✉</span>
+          <span>Get in touch</span>
+        </a>
+        <a href="https://mortier.dev" target="_blank" rel="noreferrer" class="btn btn-ghost">
+          <span>Visit main website</span>
+          <span class="btn-icon">↗</span>
+        </a>
+      </div>
+
+      <div class="badge-row">
+        <div class="badge"><span class="badge-pill"></span>HTML / CSS</div>
+        <div class="badge"><span class="badge-pill" style="background:#38bdf8;"></span>JavaScript (Node, Express, Fastify, Discord.js)</div>
+        <div class="badge"><span class="badge-pill" style="background:#facc15;"></span>PHP</div>
+        <div class="badge"><span class="badge-pill" style="background:#22c55e;"></span>Basic Python</div>
+        <div class="badge"><span class="badge-pill" style="background:#fda4af;"></span>Exploring Go & Rust</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="market-card">
+  <div class="market-inner">
+    <div class="market-header">
+      <div>
+        <div class="market-title">Live Markets</div>
+        <div class="card-subtitle">Crypto · FX · Commodities (TradingView)</div>
+      </div>
+      <div class="market-pinned">
+        <span>Pinned:</span>
+        <span class="market-tag">ETH</span>
+        <span class="market-tag">XRP</span>
+        <span class="market-tag">XAU</span>
+        <span class="market-tag">EURUSD</span>
+      </div>
+    </div>
+
+    <div class="market-body">
+      <div class="search-row">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input id="symbol-input" type="text" placeholder="Search TradingView symbol, e.g. ETHUSD, EURUSD, BTCUSDT, XAUUSD…" autocomplete="off" />
+        </div>
+        <button class="btn-search" id="symbol-search-btn">
+          <span class="icon">↻</span>
+          <span>Load chart</span>
+        </button>
+      </div>
+
+      <div class="search-hint">
+        Try symbols like <code>BINANCE:ETHUSDT</code>, <code>OANDA:EURUSD</code>, <code>OANDA:XAUUSD</code>. Without a prefix, crypto defaults to BINANCE and FX/metals to OANDA.
+      </div>
+
+      <div class="chart-shell">
+        <div class="chart-header">
+          <div class="chart-symbol">
+            <div class="chart-symbol-main" id="chart-symbol-label">OANDA:EURUSD</div>
+            <div class="chart-symbol-sub">Powered by TradingView</div>
+          </div>
+          <div class="chart-status">
+            <span class="chart-status-dot"></span>
+            <span id="chart-status-label">Live feed</span>
+          </div>
+        </div>
+        <div class="chart-container" id="chart-container"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <span>© <span id="year"></span> mortier.dev — introduction at me.mortier.dev</span>
+  <div class="footer-links">
+    <a href="mailto:hi@mortier.dev">Email</a>
+    <a href="https://mortier.dev" target="_blank" rel="noreferrer">Main portfolio</a>
+  </div>
+</footer>
+
+</div>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear()
+let tvWidgetInstance = null
+
+function resolveSymbol(raw) {
+  if (!raw) return "OANDA:EURUSD"
+  let s = raw.trim().toUpperCase()
+  if (s.includes(":")) return s
+  const fxSymbols = ["EURUSD","GBPUSD","USDJPY","USDCHF","AUDUSD","NZDUSD","USDCAD","XAUUSD","XAGUSD"]
+  if (fxSymbols.includes(s)) return "OANDA:" + s
+  return "BINANCE:" + s
+}
+
+function loadChart(symbol) {
+  const containerId = "chart-widget"
+  const chartContainer = document.getElementById("chart-container")
+  chartContainer.innerHTML = ""
+  const chartDiv = document.createElement("div")
+  chartDiv.id = containerId
+  chartDiv.style.height = "100%"
+  chartDiv.style.width = "100%"
+  chartContainer.appendChild(chartDiv)
+  document.getElementById("chart-symbol-label").textContent = symbol
+  document.getElementById("chart-status-label").textContent = "Loading…"
+  if (tvWidgetInstance && tvWidgetInstance.remove) {
+    try { tvWidgetInstance.remove() } catch(e) {}
+  }
+  tvWidgetInstance = new TradingView.widget({
+    container_id: containerId,
+    symbol: symbol,
+    interval: "60",
+    timezone: "Etc/UTC",
+    theme: "dark",
+    style: "1",
+    locale: "en",
+    toolbar_bg: "#000000",
+    enable_publishing: false,
+    hide_top_toolbar: false,
+    hide_legend: false,
+    save_image: false,
+    studies: ["MACD@tv-basicstudies","RSI@tv-basicstudies"],
+    withdateranges: true,
+    allow_symbol_change: true,
+    autosize: true
+  })
+  setTimeout(function(){document.getElementById("chart-status-label").textContent="Live feed"},1600)
+}
+
+document.addEventListener("DOMContentLoaded",function(){loadChart("OANDA:EURUSD")})
+
+const input = document.getElementById("symbol-input")
+const button = document.getElementById("symbol-search-btn")
+
+function handleSearch(){
+  const raw = input.value || "EURUSD"
+  const symbol = resolveSymbol(raw)
+  loadChart(symbol)
+}
+
+button.addEventListener("click",function(e){e.preventDefault();handleSearch()})
+input.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();handleSearch()}})
+</script>
+
+</body>
+</html>
