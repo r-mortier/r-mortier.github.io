@@ -2,210 +2,238 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Riccardo Mortier — Portfolio</title>
+<title>Riccardo Mortier — Web Developer Portfolio</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<meta name="description" content="Professional portfolio of Riccardo Mortier — Belgian web development graduate focused on building clean, reliable web tools with an interest in backend development, APIs, and automation.">
+
+<link rel="icon" href="/favicon.png" type="image/png" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
 <style>
 :root{
-  --bg:#050409;
-  --accent:#b91c1c;
-  --accent-strong:#ef4444;
+  --bg:#060607;
+  --panel:#0c0c0f;
+  --accent:#be1e1e;
+  --accent-soft:#3a1a1a;
   --text:#f3f4f6;
-  --muted:#9ca3af;
-  --border:rgba(148,163,184,.25);
+  --muted:#a1a1aa;
+  --border:#1f1f22;
+  --radius:18px;
 }
+
 *{box-sizing:border-box;margin:0;padding:0}
 body{
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;
-  background:radial-gradient(circle at top,#0f0a12 0,#020206 55%,#000 100%);
+  font-family:Inter,system-ui,sans-serif;
+  background:radial-gradient(circle at top,#0b0b10,#020203 60%);
   color:var(--text);
   min-height:100vh;
   display:flex;
   justify-content:center;
 }
-.page{width:100%;max-width:1100px;padding:26px 18px 44px}
-a{color:inherit;text-decoration:none}
 
-.header-wrap{display:flex;flex-direction:column;gap:14px;margin-bottom:26px}
-.header-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.page{
+  width:100%;
+  max-width:1080px;
+  padding:28px 18px 48px;
+  display:grid;
+  gap:18px;
+}
+
+a{text-decoration:none;color:inherit}
+
+.fade{
+  opacity:0;
+  transform:translateY(6px);
+  animation:fade .45s ease-out forwards;
+}
+@keyframes fade{to{opacity:1;transform:none}}
+
+/* Header */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
 .brand{display:flex;align-items:center;gap:10px}
 .brand-badge{
-  width:34px;height:34px;border-radius:14px;
-  background:linear-gradient(135deg,#ef4444,#7c2d12);
+  width:36px;height:36px;border-radius:14px;
+  background:linear-gradient(135deg,#c53030,#7c2d12);
   display:flex;align-items:center;justify-content:center;
-  font-weight:700
-}
-.brand-meta{display:flex;flex-direction:column;gap:2px}
-.brand-meta small{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
-.brand-meta span{font-size:14px;font-weight:500}
-.link-main{
-  font-size:12px;color:var(--muted);
-  border:1px solid var(--border);
-  padding:4px 10px;border-radius:999px;
-  backdrop-filter:blur(10px);
-  display:flex;align-items:center;gap:6px
+  font-weight:700;
 }
 
-.ticker-card{
-  border:1px solid var(--border);
-  border-radius:18px;
-  background:linear-gradient(160deg,#0b090b,#010101);
-  box-shadow:0 12px 30px rgba(0,0,0,.9);
-  padding:14px 14px 12px;
-  display:flex;
-  flex-direction:column;
-  gap:10px
-}
-.ticker-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.ticker-title{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.12em}
-
-.search-wrap{display:flex;align-items:center;gap:8px;width:100%;max-width:360px}
-.search-wrap input{
-  flex:1;
-  background:#020202;
-  color:var(--text);
-  border:1px solid rgba(148,163,184,.45);
-  border-radius:999px;
-  padding:7px 11px;
-  font-size:12px;
-}
-.search-wrap input:focus{
-  outline:none;
-  border-color:var(--accent-strong);
-}
-.search-btn{
-  border-radius:999px;
-  border:1px solid rgba(255,186,186,.45);
-  background:linear-gradient(135deg,#ef4444,#7c2d12);
-  color:#fff;
+.brand-text{display:flex;flex-direction:column}
+.brand-text small{
+  color:var(--muted);
   font-size:11px;
-  padding:6px 12px;
-  cursor:pointer;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.brand-text span{font-size:14px;font-weight:500}
+
+/* Buttons */
+.btn{
+  border-radius:999px;
+  padding:9px 14px;
+  font-size:12px;
+  font-weight:500;
+  transition:.18s ease-out;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
 }
 
-.result-card{
-  margin-top:8px;
-  border:1px solid var(--border);
-  border-radius:14px;
-  overflow:hidden;
-  background:#020202;
+.btn-primary{
+  border:1px solid #4c1616;
+  background:linear-gradient(135deg,#d63636,#922121);
+  color:white;
 }
+.btn-primary:hover{transform:translateY(-1px);filter:brightness(1.05)}
 
-.layout{display:grid;grid-template-columns:1fr;gap:20px}
+.btn-ghost{
+  border:1px solid #242427;
+  background:#101012;
+  color:var(--muted);
+}
+.btn-ghost:hover{transform:translateY(-1px);color:#fff}
 
+/* Card */
 .card{
   border:1px solid var(--border);
-  border-radius:18px;
-  padding:20px;
-  background:linear-gradient(165deg,#130c0e,#050409);
+  border-radius:var(--radius);
+  padding:22px 20px 18px;
+  background:linear-gradient(160deg,#0f0f12,#060607);
 }
-.card h1{font-size:26px;margin-bottom:10px;font-weight:600}
+
+.card h1{
+  font-size:26px;
+  margin-bottom:10px;
+  font-weight:600;
+}
 .card h1 span{
-  background:linear-gradient(135deg,#fecaca,#f87171,#b91c1c);
+  background:linear-gradient(135deg,#fca5a5,#ef4444,#7f1d1d);
   -webkit-background-clip:text;
-  color:transparent
+  color:transparent;
 }
-.card p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+
+.card p{
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.65;
+  margin-bottom:16px;
+}
+
+.section-title{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--muted);
+  margin-bottom:10px;
+}
 
 .tags{display:flex;flex-wrap:wrap;gap:8px}
 .tag{
-  font-size:11px;
-  border:1px solid var(--border);
+  border:1px solid #26262a;
   border-radius:999px;
   padding:4px 9px;
-  background:#0a0a0a;
-  color:var(--muted)
+  font-size:11px;
+  background:#0e0e11;
+  color:var(--muted);
 }
 
+/* Socials */
+.socials{
+  margin-top:14px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+/* Footer */
 .footer{
-  margin-top:26px;
+  margin-top:8px;
   display:flex;
   justify-content:space-between;
   flex-wrap:wrap;
   gap:10px;
   color:var(--muted);
-  font-size:11px
+  font-size:11px;
 }
 .footer a:hover{color:#fff}
+
+/* Mobile */
+@media(max-width:720px){
+  .header{flex-direction:column;align-items:flex-start;gap:10px}
+  .card{padding:20px 16px 16px}
+  .btn{width:100%;justify-content:center}
+  .socials{flex-direction:column}
+}
 </style>
 </head>
 
 <body>
 <div class="page">
 
-<div class="header-wrap">
-  <div class="header-top">
-    <div class="brand">
-      <div class="brand-badge">M</div>
-      <div class="brand-meta">
-        <small>Portfolio</small>
-        <span>me.mortier.dev</span>
-      </div>
+<div class="header fade">
+  <div class="brand">
+    <div class="brand-badge">RM</div>
+    <div class="brand-text">
+      <small>Portfolio</small>
+      <span>me.mortier.dev</span>
     </div>
-    <a class="link-main" href="https://mortier.dev" target="_blank" rel="noreferrer">
-      Visit main site ↗
-    </a>
   </div>
 
-  <div class="ticker-card">
-    <div class="ticker-row">
-      <div class="ticker-title">Pinned markets</div>
+  <a href="https://mortier.dev" target="_blank" class="btn btn-ghost">Visit main site ↗</a>
+</div>
 
-      <div class="search-wrap">
-        <input id="search-input" placeholder="Search price: ETHUSD, EURUSD, BTCUSDT…" />
-        <button class="search-btn" id="search-btn">Show</button>
-      </div>
-    </div>
+<div class="card fade">
+  <h1>Hi, I’m <span>Riccardo Mortier</span></h1>
+  <p>I’m a web development graduate from Belgium. I focus on building clean, reliable web experiences and I’m currently developing my backend skills while working with APIs and automation.</p>
 
-    <div class="tradingview-widget-container">
-      <div class="tradingview-widget-container__widget" id="ticker-container"></div>
-      <script>
-        new TradingView.widget({
-          container_id:"ticker-container",
-          width:"100%",
-          height:36,
-          symbols:[
-            {proName:"BINANCE:ETHUSDT",title:"ETH"},
-            {proName:"BINANCE:XRPUSDT",title:"XRP"},
-            {proName:"OANDA:XAUUSD",title:"XAU"},
-            {proName:"OANDA:EURUSD",title:"EURUSD"}
-          ],
-          colorTheme:"dark",
-          displayMode:"adaptive",
-          locale:"en"
-        })
-      </script>
-    </div>
+  <div class="section-title">Skills & Tools</div>
+  <div class="tags">
+    <div class="tag">HTML / CSS</div>
+    <div class="tag">JavaScript · Node · Express · Fastify · Discord.js</div>
+    <div class="tag">PHP</div>
+    <div class="tag">Basic Python</div>
+    <div class="tag">Exploring Go & Rust</div>
+  </div>
 
-    <div class="result-card" id="price-card"></div>
+  <div class="socials">
+    <a class="btn btn-primary" href="mailto:riccardo.mortier1@gmail.com">Email me</a>
+    <a class="btn btn-ghost" href="https://github.com/r-mortier" target="_blank">GitHub</a>
+    <a class="btn btn-ghost" href="https://www.instagram.com/whaeeeeeee" target="_blank">Instagram</a>
   </div>
 </div>
 
-<div class="layout">
-  <div class="card">
-    <h1>Hi, I’m <span>Riccardo Mortier</span></h1>
-    <p>I’m a 21-year-old beginner crypto and forex day-trader from Belgium, focused on improving consistency, discipline and market understanding. I graduated as a web developer and like building tools that connect trading with clean, practical web experiences.</p>
-
-    <div class="tags">
-      <div class="tag">HTML / CSS</div>
-      <div class="tag">JavaScript · Node · Express · Fastify · Discord.js</div>
-      <div class="tag">PHP</div>
-      <div class="tag">Basic Python</div>
-      <div class="tag">Exploring Go & Rust</div>
-      <div class="tag">Crypto & FX day-trading</div>
-    </div>
+<div class="card fade">
+  <div class="section-title">Background</div>
+  <div class="tags">
+    <div class="tag">🎓 Web Development Graduate</div>
+    <div class="tag">💻 Building personal projects</div>
+    <div class="tag">📚 Continuous learner</div>
   </div>
 </div>
 
-<div class="footer">
-  <span>© <span id="year"></span> mortier.dev — intro at me.mortier.dev</span>
+<div class="card fade">
+  <div class="section-title">Focus Areas</div>
+  <div class="tags">
+    <div class="tag">Clean UI</div>
+    <div class="tag">Backend & APIs</div>
+    <div class="tag">Automation</div>
+  </div>
+</div>
+
+<div class="footer fade">
+  <span>© <span id="year"></span> mortier.dev — introduction at me.mortier.dev</span>
   <div>
-    <a href="mailto:hi@mortier.dev">Email</a> ·
-    <a href="https://mortier.dev" target="_blank" rel="noreferrer">Main site</a>
+    <a href="mailto:riccardo.mortier1@gmail.com">Email</a> ·
+    <a href="https://mortier.dev" target="_blank">Main site</a>
   </div>
 </div>
 
@@ -213,46 +241,6 @@ a{color:inherit;text-decoration:none}
 
 <script>
 document.getElementById("year").textContent = new Date().getFullYear()
-
-function normalizeSymbol(raw){
-  if(!raw) return "OANDA:EURUSD"
-  let s = raw.trim().toUpperCase()
-  if(s.includes(":")) return s
-  const fx=["EURUSD","GBPUSD","USDJPY","USDCHF","AUDUSD","NZDUSD","USDCAD","XAUUSD","XAGUSD"]
-  if(fx.includes(s)) return "OANDA:"+s
-  return "BINANCE:"+s
-}
-
-function loadPriceWidget(symbol){
-  const card=document.getElementById("price-card")
-  card.innerHTML=""
-  const script=document.createElement("script")
-  script.type="text/javascript"
-  script.src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-info.js"
-  script.innerHTML=JSON.stringify({
-    symbol:symbol,
-    width:"100%",
-    locale:"en",
-    colorTheme:"dark",
-    isTransparent:false
-  })
-  card.appendChild(script)
-}
-
-document.addEventListener("DOMContentLoaded",function(){
-  loadPriceWidget("OANDA:EURUSD")
-})
-
-const input=document.getElementById("search-input")
-const btn=document.getElementById("search-btn")
-
-function handle(){
-  const sym=normalizeSymbol(input.value||"EURUSD")
-  loadPriceWidget(sym)
-}
-
-btn.addEventListener("click",handle)
-input.addEventListener("keydown",e=>{if(e.key==="Enter")handle()})
 </script>
 
 </body>
