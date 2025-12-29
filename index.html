@@ -19,8 +19,6 @@
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-      integrity="sha512-Vh9b8mP0ZrJ7EwM7uH8Xl3k5jA8m0R1Yc8YVw0+8gFQ2y0e4V5+5Xk6nJm3kQ8O8b0f4X5h1O6+z5f0Y3z6+g=="
-      crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
 
@@ -336,6 +334,11 @@
         max-width: 320px;
         width: 100%;
       }
+      .crypto-search .status {
+        font-size: 0.8rem;
+        opacity: 0.7;
+      }
+
       .crypto-search input {
         background: transparent;
         border: none;
@@ -367,12 +370,17 @@
         max-height: 86vh;
         overflow: hidden;
         border-radius: 14px;
-        background: var(--card-bg);
         border: 1px solid var(--border-color);
         backdrop-filter: blur(12px);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         display: flex;
         flex-direction: column;
+        background: rgba(20, 20, 40, 0.55);
+        backdrop-filter: blur(20px) saturate(150%);
+        -webkit-backdrop-filter: blur(20px) saturate(150%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+        color: #fff;
       }
       .modal-header {
         display: flex;
@@ -409,6 +417,21 @@
         filter: brightness(0.95);
       }
 
+      #donationModal h3,
+      #donationModal p,
+      #donationModal code,
+      #donationModal .donation-option,
+      #donationModal .modal-header,
+      #donationModal .icon-btn {
+        color: #ffffff;
+      }
+
+      #donationModal i,
+      .icon-btn i,
+      .donation-option i {
+        color: currentColor;
+      }
+
       /* Chart modal */
       .chart-container {
         height: 70vh;
@@ -438,7 +461,6 @@
         background: var(--card-hover);
       }
 
-      .resume-fab,
       .donate-fab {
         position: fixed;
         right: 22px;
@@ -456,13 +478,9 @@
         transition: background 0.2s ease, transform 0.2s ease;
         text-decoration: none;
       }
-      .resume-fab {
+      .donate-fab {
         bottom: 26px;
       }
-      .donate-fab {
-        bottom: 82px;
-      }
-      .resume-fab:hover,
       .donate-fab:hover {
         background: var(--card-hover);
         transform: translateY(-2px);
@@ -575,6 +593,31 @@
         opacity: 1;
         animation: bounce 2s infinite;
       }
+
+      /* price flash animation */
+      @keyframes priceFlashUp {
+        0% {
+          background: rgba(34, 197, 94, 0.25);
+        }
+        100% {
+          background: transparent;
+        }
+      }
+      @keyframes priceFlashDown {
+        0% {
+          background: rgba(239, 68, 68, 0.25);
+        }
+        100% {
+          background: transparent;
+        }
+      }
+      .crypto-item.flash-up {
+        animation: priceFlashUp 0.6s ease;
+      }
+      .crypto-item.flash-down {
+        animation: priceFlashDown 0.6s ease;
+      }
+
       @keyframes bounce {
         0%,
         20%,
@@ -659,8 +702,9 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
       .donation-option {
-        background: var(--bg-color);
-        border: 1px solid var(--border-color);
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #fff;
         border-radius: 10px;
         padding: 14px;
         text-align: center;
@@ -672,13 +716,14 @@
         transform: translateY(-3px);
       }
       .donation-option.active {
-        background: var(--primary-color);
-        color: white;
+        border-color: transparent;
+        box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35);
       }
+
       .donation-address {
         display: none;
         margin-top: 12px;
-        background: var(--bg-color);
+        background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--border-color);
         border-radius: 10px;
         padding: 12px;
@@ -717,24 +762,28 @@
       @media (max-width: 600px) {
         .crypto-navbar {
           flex-wrap: wrap;
-          gap: 8px;
+          gap: 10px;
+          padding: 10px 10px 14px;
         }
+
         .crypto-search {
-          max-width: none;
+          order: 1;
           width: 100%;
-          order: 2;
+          max-width: 100%;
         }
+
         .crypto-items-container {
-          order: 3;
+          order: 2;
           width: 100%;
           gap: 10px;
+          overflow-x: auto;
+          padding-bottom: 4px;
         }
+
         .crypto-item {
-          font-size: 0.8rem;
-          padding: 6px 8px;
-        }
-        section {
-          padding: 0 4%;
+          padding: 8px 12px;
+          font-size: 0.85rem;
+          border-radius: 14px;
         }
       }
     </style>
@@ -747,8 +796,10 @@
         id="cryptoItemsContainer"
         role="list"
       ></div>
+
       <label class="crypto-search" aria-label="Search cryptocurrency">
         <i class="fas fa-search" aria-hidden="true"></i>
+
         <input
           id="cryptoSearch"
           type="search"
@@ -757,6 +808,9 @@
           aria-label="Search crypto"
           autocomplete="off"
         />
+
+        <!-- typing / loading indicator -->
+        <span class="status" id="cryptoSearchStatus"></span>
       </label>
     </nav>
 
@@ -1148,25 +1202,55 @@
         const list = $("#cryptoItemsContainer");
         const input = $("#cryptoSearch");
 
+        function highlight(text, q) {
+          const re = new RegExp(`(${q})`, "ig");
+          return text.replace(re, "<strong>$1</strong>");
+        }
+
         async function fetchTop() {
           try {
-            const resp = await fetch(
-              `https://api.coingecko.com/api/v3/simple/price?ids=${DEFAULT_CRYPTOS.join(
-                ","
-              )}&vs_currencies=usd&include_24hr_change=true`
+            const PAIRS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "XRPUSDT"];
+
+            const reqs = PAIRS.map((p) =>
+              fetch(
+                `https://api.binance.com/api/v3/ticker/24hr?symbol=${p}`
+              ).then((r) => r.json())
             );
-            const data = await resp.json();
-            renderTop(data);
+
+            const data = await Promise.all(reqs);
+
+            const map = {};
+            data.forEach((d) => {
+              map[d.symbol] = {
+                usd: Number(d.lastPrice),
+                usd_24h_change: Number(d.priceChangePercent),
+              };
+            });
+
+            // Render using the existing function
+            renderTop({
+              bitcoin: map.BTCUSDT,
+              ethereum: map.ETHUSDT,
+              solana: map.SOLUSDT,
+              ripple: map.XRPUSDT,
+            });
           } catch (err) {
-            list.innerHTML = `<div class="crypto-item" role="listitem"><span>API Error</span><button class="icon-btn" id="retryPrices" style="margin-left:10px;">Retry</button></div>`;
+            list.innerHTML = `<div class="crypto-item" role="listitem">
+        API Error <button class="icon-btn" id="retryPrices">Retry</button>
+      </div>`;
             $("#retryPrices")?.addEventListener("click", fetchTop);
           }
         }
+
+        const lastPrices = {};
+
         function renderTop(data) {
           list.innerHTML = "";
+
           DEFAULT_CRYPTOS.forEach((id) => {
             const c = data[id];
             if (!c) return;
+
             const change = +c.usd_24h_change;
             const up = change >= 0;
             const symbol =
@@ -1177,115 +1261,89 @@
                 : id === "solana"
                 ? "SOL"
                 : "XRP";
+
             const item = document.createElement("button");
             item.className = "crypto-item";
             item.setAttribute("role", "listitem");
-            item.setAttribute(
-              "aria-label",
-              `${symbol} price ${c.usd.toFixed(3)} USDT, ${change.toFixed(
-                2
-              )} percent ${up ? "up" : "down"} in 24h`
-            );
-            item.innerHTML = `<span class="crypto-symbol">${symbol}</span><span class="crypto-price">${c.usd.toLocaleString(
-              undefined,
-              { minimumFractionDigits: 3, maximumFractionDigits: 3 }
-            )} USDT</span><span class="crypto-change ${
-              up ? "positive" : "negative"
-            }">${up ? "↗" : "↘"} ${Math.abs(change).toFixed(2)}%</span>`;
+
+            // FLASH if price changed
+            const price = c.usd;
+            if (lastPrices[symbol] !== undefined) {
+              if (price > lastPrices[symbol]) item.classList.add("flash-up");
+              if (price < lastPrices[symbol]) item.classList.add("flash-down");
+            }
+            lastPrices[symbol] = price;
+
+            item.innerHTML = `<span class="crypto-symbol">${symbol}</span>
+       <span class="crypto-price">
+          ${price.toLocaleString(undefined, {
+            minimumFractionDigits: 3,
+            maximumFractionDigits: 3,
+          })} USDT
+       </span>
+       <span class="crypto-change ${up ? "positive" : "negative"}">
+         ${up ? "↗" : "↘"} ${Math.abs(change).toFixed(2)}%
+       </span>`;
+
             item.addEventListener("click", () => openChart(symbol));
             list.appendChild(item);
           });
         }
+        let BINANCE_CACHE = null;
+        let BINANCE_CACHE_TIME = 0;
 
-        // Simple search (first 300 market-cap coins for responsiveness)
         async function searchMarkets(query) {
           if (!query.trim()) return [];
 
-          // ---- Crypto (CoinGecko) ----
-          const pages = [1, 2, 3];
-          const reqs = pages.map((p) =>
-            fetch(
-              `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=${p}&sparkline=false`
-            )
-          );
-          const res = await Promise.all(reqs);
-          const arrays = await Promise.all(res.map((r) => r.json()));
-          const allCrypto = arrays.flat();
+          // cache symbol list for 60 seconds
+          const now = Date.now();
+          const isStale = now - BINANCE_CACHE_TIME > 60000;
 
-          const cryptoMatches = allCrypto
-            .filter(
-              (c) =>
-                c.name.toLowerCase().includes(query.toLowerCase()) ||
-                c.symbol.toLowerCase().includes(query.toLowerCase())
-            )
-            .slice(0, 10)
-            .map((c) => ({
-              type: "crypto",
-              id: c.id,
-              symbol: c.symbol.toUpperCase(),
-              price: Number(c.current_price || 0),
-            }));
-
-          // ---- Forex (major pairs; ExchangeRate host) ----
-          const FOREX = [
-            "EURUSD",
-            "GBPUSD",
-            "USDJPY",
-            "AUDUSD",
-            "USDCAD",
-            "USDCHF",
-            "NZDUSD",
-          ];
-          const forexMatches = FOREX.filter((pair) =>
-            pair.toLowerCase().includes(query.toLowerCase())
-          ).map((pair) => ({ type: "forex", symbol: pair }));
-
-          // Fetch prices only for matching forex pairs
-          if (forexMatches.length) {
-            try {
-              const pairs = forexMatches.map((f) => f.symbol); // e.g. EURUSD
-              const reqs = pairs.map((p) => {
-                const base = p.slice(0, 3);
-                const quote = p.slice(3, 6);
-                return fetch(
-                  `https://api.exchangerate.host/latest?base=${base}&symbols=${quote}`
-                )
-                  .then((r) => r.json())
-                  .then((d) => ({ pair: p, price: d.rates?.[quote] ?? null }));
-              });
-              const results = await Promise.all(reqs);
-              results.forEach((r) => {
-                const m = forexMatches.find((f) => f.symbol === r.pair);
-                if (m) m.price = r.price;
-              });
-            } catch (e) {
-              /* ignore */
-            }
+          if (!BINANCE_CACHE || isStale) {
+            const res = await fetch(
+              "https://api.binance.com/api/v3/ticker/price"
+            );
+            BINANCE_CACHE = await res.json();
+            BINANCE_CACHE_TIME = now;
           }
 
-          return [...cryptoMatches, ...forexMatches].slice(0, 15);
+          return BINANCE_CACHE.filter(
+            (x) =>
+              x.symbol.endsWith("USDT") &&
+              x.symbol.toLowerCase().includes(query.toLowerCase())
+          )
+            .slice(0, 12)
+            .map((c) => ({
+              type: "crypto",
+              symbol: c.symbol.replace("USDT", ""),
+              price: Number(c.price),
+            }));
         }
 
         let searchTimer;
+
         input.addEventListener("input", () => {
           clearTimeout(searchTimer);
-          const q = input.value;
 
-          // If search is cleared → restore pinned default coins
+          const q = input.value;
+          const status = $("#cryptoSearchStatus");
+
           if (!q.trim()) {
-            input.setAttribute("aria-busy", "false");
+            status.textContent = "";
             fetchTop();
             return;
           }
 
-          input.setAttribute("aria-busy", "true");
+          status.textContent = "Searching…";
+
           searchTimer = setTimeout(async () => {
             const results = await searchMarkets(q);
-            input.setAttribute("aria-busy", "false");
+            status.textContent = "";
+
             list.innerHTML = "";
 
-            if (results.length === 0) {
-              list.innerHTML = `<div class="crypto-item" role="listitem">No results</div>`;
+            if (!results.length) {
+              list.innerHTML = `<div class="crypto-item">No results</div>`;
               return;
             }
 
@@ -1293,24 +1351,21 @@
               const item = document.createElement("button");
               item.className = "crypto-item";
 
-              if (r.type === "crypto") {
-                const price = Number(r.price || 0);
-                item.innerHTML = `<span class="crypto-symbol">${
-                  r.symbol
-                }</span><span class="crypto-price">${price.toLocaleString(
-                  undefined,
-                  { minimumFractionDigits: 3, maximumFractionDigits: 3 }
-                )} USDT</span>`;
-                item.addEventListener("click", () => openChart(r.symbol));
-              } else {
-                const price = r.price != null ? r.price.toFixed(4) : "—";
-                item.innerHTML = `<span class="crypto-symbol">${r.symbol}</span><span class="crypto-price">${price}</span>`;
-                item.addEventListener("click", () => openChart(r.symbol));
-              }
+              item.innerHTML = `<span class="crypto-symbol">${highlight(
+                r.symbol,
+                q
+              )}</span>
+         <span class="crypto-price">
+          ${r.price.toLocaleString(undefined, {
+            minimumFractionDigits: 3,
+            maximumFractionDigits: 3,
+          })} USDT
+         </span>`;
 
+              item.addEventListener("click", () => openChart(r.symbol));
               list.appendChild(item);
-            }, 300);
-          });
+            });
+          }, 280);
         });
 
         fetchTop();
@@ -1321,6 +1376,8 @@
       function openChart(symbol) {
         const modal = $("#chartModal");
         const container = $("#chartContainer");
+
+        modal.classList.add("active");
 
         // Detect forex vs crypto
         let tvSymbol;
@@ -1335,19 +1392,13 @@
         }
 
         container.innerHTML = "";
-        const widget = document.createElement("div");
-        widget.className = "tradingview-widget-container__widget";
-        widget.style.cssText = "width:100%; height:100%";
-        const id = `tv_${Date.now()}`;
-        widget.id = id;
-        container.appendChild(widget);
+        const widgetDiv = document.createElement("div");
+        widgetDiv.id = "tv_chart";
+        widgetDiv.style.height = "100%";
+        widgetDiv.style.width = "100%";
+        container.appendChild(widgetDiv);
 
-        const script = document.createElement("script");
-        script.type = "text/javascript";
-        script.src =
-          "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-        script.async = true;
-        script.innerHTML = JSON.stringify({
+        new TradingView.widget({
           autosize: true,
           symbol: tvSymbol,
           interval: "D",
@@ -1355,12 +1406,11 @@
           theme: document.body.dataset.theme === "dark" ? "dark" : "light",
           style: "1",
           locale: "en",
-          enable_publishing: false,
+          toolbar_bg: "#00000000",
+          hide_top_toolbar: false,
           allow_symbol_change: true,
-          container_id: id,
+          container_id: "tv_chart",
         });
-        container.appendChild(script);
-        modal.classList.add("active");
       }
 
       // ---------- Donations ----------
@@ -1500,5 +1550,6 @@
         $("#chartModal").classList.remove("active")
       );
     </script>
+    <script src="https://s3.tradingview.com/tv.js"></script>
   </body>
 </html>
