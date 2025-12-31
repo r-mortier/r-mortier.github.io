@@ -185,6 +185,49 @@
       .contact {
         max-width: 900px;
       }
+      .contact-links {
+        display: flex;
+        gap: 14px;
+        margin-top: 14px;
+      }
+      .skills-top {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin: 14px 0;
+      }
+
+      .skills-modal-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-top: 10px;
+      }
+
+      .contact-links a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        transition: background 0.2s ease, transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      .contact-links a:hover {
+        background: var(--card-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 18px var(--shadow-color);
+      }
+
+      .contact-links i {
+        font-size: 1.2rem;
+      }
+
       .about h2,
       .skills h2,
       .contact h2 {
@@ -371,7 +414,7 @@
         overflow: hidden;
         border-radius: 14px;
         border: 1px solid var(--border-color);
-        backdrop-filter: blur(12px);
+        backdrop-filter: blur(6px);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         display: flex;
         flex-direction: column;
@@ -594,28 +637,36 @@
         animation: bounce 2s infinite;
       }
 
-      /* price flash animation */
       @keyframes priceFlashUp {
         0% {
+          background: rgba(34, 197, 94, 0.25);
+        }
+        40% {
           background: rgba(34, 197, 94, 0.25);
         }
         100% {
           background: transparent;
         }
       }
+
       @keyframes priceFlashDown {
         0% {
+          background: rgba(239, 68, 68, 0.25);
+        }
+        40% {
           background: rgba(239, 68, 68, 0.25);
         }
         100% {
           background: transparent;
         }
       }
+
       .crypto-item.flash-up {
-        animation: priceFlashUp 0.6s ease;
+        animation: priceFlashUp 2.2s ease;
       }
+
       .crypto-item.flash-down {
-        animation: priceFlashDown 0.6s ease;
+        animation: priceFlashDown 2.2s ease;
       }
 
       @keyframes bounce {
@@ -760,6 +811,35 @@
       }
 
       @media (max-width: 600px) {
+        section {
+          padding: 0 5%;
+        }
+
+        .hero h1 {
+          text-align: center;
+        }
+
+        .hero p {
+          text-align: center;
+        }
+
+        .btn {
+          align-self: center;
+        }
+
+        .contact-links {
+          justify-content: center;
+        }
+
+        .carousel-track {
+          gap: 12px;
+        }
+
+        .skill-item {
+          flex: 0 0 170px;
+          padding: 14px 10px;
+        }
+
         .crypto-navbar {
           flex-wrap: wrap;
           gap: 10px;
@@ -892,19 +972,32 @@
       <section class="skills" id="section-skills" aria-label="Skills">
         <h2>Technical Skills</h2>
         <p>Some of the tools and languages I work with regularly:</p>
-        <div class="carousel-container">
-          <div
-            class="carousel-track"
-            id="carouselTrack"
-            aria-live="polite"
-          ></div>
+
+        <div class="skills-top">
+          <div class="skill-item">
+            <i class="fab fa-js"></i>
+            <div class="skill-name">HTML/CSS</div>
+            <div class="skill-level">Advanced</div>
+          </div>
+
+          <div class="skill-item">
+            <i class="fab fa-node"></i>
+            <div class="skill-name">JavaScript</div>
+            <div class="skill-level">Advanced</div>
+          </div>
         </div>
+
+        <button class="icon-btn primary" id="openSkillsModal">
+          View all skills
+        </button>
+
         <a
           href="#section-contact"
           class="btn"
           aria-label="Go to contact section"
-          >Get In Touch</a
         >
+          Get In Touch
+        </a>
       </section>
 
       <section class="contact" id="section-contact" aria-label="Contact">
@@ -975,6 +1068,21 @@
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="skillsModal" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <header class="modal-header">
+          <h3>All Skills</h3>
+          <button class="icon-btn" id="closeSkillsModal">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </header>
+
+        <div class="modal-body">
+          <div class="skills-modal-grid" id="skillsModalGrid"></div>
         </div>
       </div>
     </div>
@@ -1266,6 +1374,10 @@
             item.className = "crypto-item";
             item.setAttribute("role", "listitem");
 
+            item.addEventListener("animationend", () => {
+              item.classList.remove("flash-up", "flash-down");
+            });
+
             // FLASH if price changed
             const price = c.usd;
             if (lastPrices[symbol] !== undefined) {
@@ -1460,44 +1572,31 @@
         );
       }
 
-      // ---------- Skills carousel ----------
-      function initSkills() {
-        const track = $("#carouselTrack");
+      function initSkillsModal() {
+        const grid = $("#skillsModalGrid");
+        const open = $("#openSkillsModal");
+        const modal = $("#skillsModal");
+        const close = $("#closeSkillsModal");
+
         SKILLS.forEach((s) => {
           const item = document.createElement("div");
           item.className = "skill-item";
-          item.innerHTML = `<i class="${s.icon}"></i><div class="skill-name">${s.name}</div><div class="skill-level">${s.level}</div>`;
-          track.appendChild(item);
+          item.innerHTML = `
+      <i class="${s.icon}"></i>
+      <div class="skill-name">${s.name}</div>
+      <div class="skill-level">${s.level}</div>
+    `;
+          grid.appendChild(item);
         });
-        let isDown = false,
-          startX = 0,
-          scrollLeft = 0;
-        track.addEventListener("mousedown", (e) => {
-          isDown = true;
-          track.classList.add("dragging");
-          startX = e.pageX - track.offsetLeft;
-          scrollLeft = track.scrollLeft;
-        });
-        track.addEventListener("mouseleave", () => {
-          isDown = false;
-          track.classList.remove("dragging");
-        });
-        track.addEventListener("mouseup", () => {
-          isDown = false;
-          track.classList.remove("dragging");
-        });
-        track.addEventListener("mousemove", (e) => {
-          if (!isDown) return;
-          e.preventDefault();
-          const x = e.pageX - track.offsetLeft;
-          const walk = (x - startX) * 1.2;
-          track.scrollLeft = scrollLeft - walk;
+
+        open.addEventListener("click", () => modal.classList.add("active"));
+        close.addEventListener("click", () => modal.classList.remove("active"));
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) modal.classList.remove("active");
         });
       }
 
-      // ---------- Terminal (keyboard toggle) ----------
       function initTerminal() {
-        // Minimal terminal overlay using alert-like outputs (kept simple to reduce code weight)
         document.addEventListener("keydown", (e) => {
           if (e.ctrlKey && e.key === "`") {
             e.preventDefault();
@@ -1536,7 +1635,7 @@
       function initAfterLoad() {
         initTheme();
         initSections();
-        initSkills();
+        initSkillsModal();
         initCrypto();
         initDonations();
         initTerminal();
