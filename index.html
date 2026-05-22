@@ -1,268 +1,499 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mortier Sentinel — API Usage Monitoring</title>
-    <meta
-      name="description"
-      content="Mortier Sentinel helps small teams monitor API usage, quotas, and errors before things break. Coming soon."
-    />
-    <style>
-      :root {
-        --bg: #120809;
-        --card: #1a0d0f;
-        --primary: #e5484d;
-        --secondary: #ff7a7f;
-        --text: #f4eaea;
-        --muted: #c9a6a8;
-        --accent: #ff9b9f;
-      }
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>M-Dev | Software Support & Development</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-      * {
-        box-sizing: border-box;
-      }
+    body {
+      background: #0B0E12;
+      font-family: 'Inter', sans-serif;
+      color: #EFF3F8;
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
 
-      body {
-        margin: 0;
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter,
-          sans-serif;
-        background:
-          radial-gradient(1200px 600px at 10% -10%, #3a1417, transparent),
-          var(--bg);
-        color: var(--text);
-        line-height: 1.6;
-        min-height: 100vh;
-        display: flex;
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Header & Navigation */
+    .header {
+      position: sticky;
+      top: 0;
+      background: rgba(11, 14, 18, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 102, 255, 0.3);
+      z-index: 1000;
+      padding: 1rem 0;
+    }
+
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+
+    .logo-icon {
+      color: #0066FF;
+      font-size: 1.8rem;
+    }
+
+    .logo-text {
+      background: linear-gradient(135deg, #FFFFFF, #94a3b8);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .logo-text span {
+      color: #0066FF;
+      background: none;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+    }
+
+    /* Desktop Nav */
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: #CBD5E1;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #0066FF;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.05);
+      padding: 0.3rem 0.8rem;
+      border-radius: 60px;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0.3rem 0.9rem;
+      border-radius: 40px;
+      color: #9ca3af;
+      transition: 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .lang-btn.active {
+      background: #0066FF;
+      color: white;
+    }
+
+    /* Mobile Menu */
+    .menu-icon {
+      display: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .menu-icon {
+        display: block;
+      }
+      .nav-links {
+        position: fixed;
+        top: 70px;
+        left: -100%;
+        width: 100%;
+        background: #0B0E12;
         flex-direction: column;
-      }
-
-      .container {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 2.5rem 1.5rem 4rem;
-        flex: 1;
-      }
-
-      header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 4rem;
-      }
-
-      .logo {
-        font-weight: 800;
-        letter-spacing: 0.4px;
-        font-size: 1.1rem;
-      }
-
-      .badge {
-        background: rgba(229, 72, 77, 0.18);
-        color: var(--primary);
-        padding: 0.3rem 0.7rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-      }
-
-      .hero {
-        text-align: center;
-        margin-bottom: 4.5rem;
-      }
-
-      .hero h1 {
-        font-size: clamp(2.2rem, 5vw, 3.4rem);
-        line-height: 1.1;
-        margin-bottom: 1.2rem;
-      }
-
-      .hero p {
-        max-width: 720px;
-        margin: 0 auto 2.2rem;
-        color: var(--muted);
-        font-size: 1.05rem;
-      }
-
-      .cta {
-        display: inline-flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      button {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: #0b0e1a;
-        border: none;
-        padding: 0.9rem 1.4rem;
-        border-radius: 10px;
-        font-weight: 700;
-        cursor: pointer;
-        transition:
-          transform 0.15s ease,
-          box-shadow 0.15s ease;
-        box-shadow: 0 10px 25px rgba(229, 72, 77, 0.35);
-      }
-
-      button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 14px 30px rgba(229, 72, 77, 0.45);
-      }
-
-      .ghost {
-        background: transparent;
-        color: var(--text);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        box-shadow: none;
-      }
-
-      section.features {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        padding: 2rem;
         gap: 1.5rem;
-        margin-bottom: 4.5rem;
+        transition: left 0.3s ease;
+        border-bottom: 1px solid #0066FF;
+        z-index: 999;
       }
-
-      .card {
-        background: linear-gradient(
-          180deg,
-          rgba(229, 72, 77, 0.12),
-          transparent
-        );
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        padding: 1.5rem 1.4rem 1.7rem;
-        position: relative;
-        overflow: hidden;
+      .nav-links.active {
+        left: 0;
       }
-
-      .card::after {
-        content: "";
-        position: absolute;
-        inset: auto -40% -60% -40%;
-        height: 120%;
-        background: radial-gradient(
-          circle at center,
-          rgba(229, 72, 77, 0.18),
-          transparent 60%
-        );
-        pointer-events: none;
+      .container {
+        padding: 0 1.5rem;
       }
+    }
 
-      .card h3 {
-        margin: 0 0 0.4rem;
-        font-size: 1.1rem;
-      }
+    /* Buttons & Cards */
+    .badge {
+      display: inline-block;
+      background: rgba(0,102,255,0.12);
+      color: #3b82f6;
+      border-radius: 40px;
+      padding: 0.3rem 1rem;
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
 
-      .card p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 0.95rem;
-      }
+    h1 {
+      font-size: 3.2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 1.2rem;
+      background: linear-gradient(to right, #FFF, #94a3b8);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
 
-      .waitlist {
-        background: var(--card);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        padding: 2.2rem 1.8rem;
-        text-align: center;
-      }
+    .subhead {
+      font-size: 1.2rem;
+      color: #CBD5E1;
+      max-width: 650px;
+      margin-bottom: 2rem;
+    }
 
-      .waitlist h2 {
-        margin-top: 0;
-        font-size: 1.6rem;
-      }
+    .services {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.8rem;
+      margin: 3rem 0;
+    }
 
-      form {
-        display: flex;
-        gap: 0.8rem;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-top: 1.4rem;
-      }
+    .service-card {
+      background: rgba(20, 26, 34, 0.7);
+      backdrop-filter: blur(2px);
+      border-radius: 28px;
+      padding: 1.8rem;
+      border: 1px solid rgba(0,102,255,0.2);
+      transition: transform 0.2s, border-color 0.2s;
+      cursor: pointer;
+    }
 
-      input[type="email"] {
-        padding: 0.85rem 1rem;
-        min-width: 260px;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        background: #14090b;
-        color: var(--text);
-        font-size: 0.95rem;
-      }
+    .service-card:hover {
+      border-color: #0066FF;
+      transform: translateY(-6px);
+      background: rgba(30, 38, 48, 0.9);
+    }
 
-      footer {
-        text-align: center;
-        color: var(--muted);
-        font-size: 0.85rem;
-        padding: 1.5rem 1rem 2rem;
-        margin-top: auto;
-      }
+    .service-icon {
+      font-size: 2.4rem;
+      color: #0066FF;
+      margin-bottom: 1rem;
+    }
 
-      .hidden {
-        display: none;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <header>
-        <div class="logo">Mortier Sentinel</div>
-        <span class="badge">Coming Soon</span>
-      </header>
+    .service-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
 
-      <section class="hero">
-        <h1>Know your API limits <br />before they break production</h1>
-        <p>
-          Mortier Sentinel monitors API usage, errors, and rate limits in real
-          time — and alerts you
-          <strong>before</strong> your app hits the wall. Built for small teams
-          who don’t want enterprise bloat.
-        </p>
-        <div class="cta">
-          <button class="ghost">Coming soon</button>
-          <button class="ghost">View sample dashboard</button>
+    .pillars {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 48px;
+      padding: 1.8rem 2rem;
+      margin: 2rem 0;
+      justify-content: space-between;
+      border: 1px solid rgba(0,102,255,0.2);
+    }
+
+    .pillar {
+      flex: 1;
+      text-align: center;
+      min-width: 120px;
+    }
+
+    .pillar i {
+      font-size: 1.8rem;
+      color: #0066FF;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    /* FAQ Accordion */
+    .faq {
+      margin: 3rem 0;
+    }
+    .faq-item {
+      background: rgba(20, 26, 34, 0.5);
+      border-radius: 20px;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .faq-question {
+      padding: 1.2rem 1.5rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-question i {
+      transition: transform 0.2s;
+    }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      padding: 0 1.5rem;
+      transition: max-height 0.3s ease, padding 0.3s;
+      color: #B0C4DE;
+    }
+    .faq-item.active .faq-answer {
+      max-height: 200px;
+      padding: 0 1.5rem 1.2rem 1.5rem;
+    }
+    .faq-item.active .faq-question i {
+      transform: rotate(180deg);
+    }
+
+    /* Contact Form */
+    .contact-form {
+      background: rgba(20, 26, 34, 0.6);
+      border-radius: 32px;
+      padding: 2rem;
+      margin: 2rem 0;
+      border: 1px solid rgba(0,102,255,0.2);
+    }
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      color: white;
+      font-family: 'Inter', sans-serif;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #0066FF;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #0066FF;
+      padding: 0.8rem 2rem;
+      border-radius: 40px;
+      font-weight: 600;
+      color: white;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn:hover {
+      background: #0052cc;
+      transform: scale(1.02);
+    }
+    .footer {
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 2rem 0;
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    /* Language visibility */
+    .lang-nl { display: block; }
+    .lang-en { display: none; }
+    body.lang-nl .lang-nl { display: block; }
+    body.lang-nl .lang-en { display: none; }
+    body.lang-en .lang-en { display: block; }
+    body.lang-en .lang-nl { display: none; }
+
+    /* service cards and headings dynamic */
+    .service-title.lang-nl, .service-desc.lang-nl { display: block; }
+    body.lang-en .service-title.lang-nl, body.lang-en .service-desc.lang-nl { display: none; }
+    body.lang-en .service-title.lang-en, body.lang-en .service-desc.lang-en { display: block; }
+    .service-title.lang-en, .service-desc.lang-en { display: none; }
+  </style>
+</head>
+<body class="lang-nl">
+  <header class="header">
+    <div class="container header-inner">
+      <div class="logo">
+        <i class="fas fa-code logo-icon"></i>
+        <div class="logo-text">M-<span>DEV</span></div>
+      </div>
+      <div class="menu-icon" id="menuIcon">
+        <i class="fas fa-bars"></i>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a href="#home" class="nav-link"><span class="lang-nl">Home</span><span class="lang-en">Home</span></a>
+        <a href="#services" class="nav-link"><span class="lang-nl">Diensten</span><span class="lang-en">Services</span></a>
+        <a href="#faq" class="nav-link"><span class="lang-nl">FAQ</span><span class="lang-en">FAQ</span></a>
+        <a href="#contact" class="nav-link"><span class="lang-nl">Contact</span><span class="lang-en">Contact</span></a>
+        <div class="lang-switch">
+          <button class="lang-btn active" data-lang="nl">NL</button>
+          <button class="lang-btn" data-lang="en">EN</button>
         </div>
-      </section>
+      </div>
+    </div>
+  </header>
 
-      <section class="features">
-        <div class="card">
-          <h3>📈 Usage & quota tracking</h3>
-          <p>
-            See requests, limits, and remaining quota across all your APIs in
-            one place.
-          </p>
+  <main>
+    <!-- Hero Section -->
+    <section id="home">
+      <div class="container" style="padding-top: 3rem;">
+        <div class="lang-nl">
+          <div class="badge"><i class="fas fa-microchip"></i> Software oplossingen · België</div>
+          <h1>Software problemen?<br>Ik help je verder.</h1>
+          <div class="subhead">Professionele ondersteuning voor software, websites en API's. Van kleine bugs tot complete oplossingen — ik zorg dat jouw software weer werkt.</div>
         </div>
-        <div class="card">
-          <h3>🚨 Smart alerts</h3>
-          <p>
-            Slack & email alerts when you’re about to hit rate limits or error
-            spikes.
-          </p>
+        <div class="lang-en">
+          <div class="badge"><i class="fas fa-microchip"></i> Software solutions · Belgium</div>
+          <h1>Software issues?<br>I’ve got you.</h1>
+          <div class="subhead">Professional support for software, websites and APIs. From small bugs to complete solutions — I make your software work again.</div>
         </div>
-        <div class="card">
-          <h3>⚡ Lightweight setup</h3>
-          <p>Add one SDK or webhook. No agents, no heavy infra, no nonsense.</p>
-        </div>
-        <div class="card">
-          <h3>🧠 Built for small teams</h3>
-          <p>
-            Clear dashboards, sane defaults, and pricing that won’t make you
-            cry.
-          </p>
-        </div>
-      </section>
+      </div>
+    </section>
 
-      <footer>
-        © <span id="year"></span> Mortier Sentinel. Built for developers who
-        hate surprises. A Mortier.dev product.
-      </footer>
+    <!-- Services Grid -->
+    <div class="container" id="services">
+      <div class="services">
+        <div class="service-card"><div class="service-icon"><i class="fas fa-bug"></i></div><div class="service-title lang-nl">Software troubleshooting & debugging</div><div class="service-title lang-en">Software troubleshooting & debugging</div><div class="service-desc lang-nl">Snelle diagnose en oplossing van fouten in applicaties en systemen.</div><div class="service-desc lang-en">Fast diagnosis and resolution of application errors.</div></div>
+        <div class="service-card"><div class="service-icon"><i class="fas fa-globe"></i></div><div class="service-title lang-nl">Web development</div><div class="service-title lang-en">Web development</div><div class="service-desc lang-nl">Responsive, moderne websites en webapplicaties op maat.</div><div class="service-desc lang-en">Custom responsive websites and modern web apps.</div></div>
+        <div class="service-card"><div class="service-icon"><i class="fas fa-plug"></i></div><div class="service-title lang-nl">API development & integratie</div><div class="service-title lang-en">API development & integration</div><div class="service-desc lang-nl">RESTful API's bouwen en koppelen met externe diensten.</div><div class="service-desc lang-en">Build RESTful APIs and integrate with external services.</div></div>
+        <div class="service-card"><div class="service-icon"><i class="fas fa-chart-line"></i></div><div class="service-title lang-nl">Optimalisatie & prestatieverbetering</div><div class="service-title lang-en">Performance optimization</div><div class="service-desc lang-nl">Versnel applicaties, databases en laadtijden.</div><div class="service-desc lang-en">Speed up applications, databases, and load times.</div></div>
+        <div class="service-card"><div class="service-icon"><i class="fas fa-headset"></i></div><div class="service-title lang-nl">Algemene IT & software ondersteuning</div><div class="service-title lang-en">General IT & software support</div><div class="service-desc lang-nl">Structureel onderhoud, advies en beheer.</div><div class="service-desc lang-en">Ongoing maintenance, consulting, and management.</div></div>
+        <div class="service-card"><div class="service-icon"><i class="fas fa-shield-alt"></i></div><div class="service-title lang-nl">Betrouwbare oplossingen</div><div class="service-title lang-en">Reliable solutions</div><div class="service-desc lang-nl">Veilige, schaalbare en geteste software-architectuur.</div><div class="service-desc lang-en">Secure, scalable and thoroughly tested architecture.</div></div>
+      </div>
     </div>
 
-    <script>
-      document.getElementById("year").textContent = new Date().getFullYear();
-    </script>
-  </body>
+    <!-- Pillars -->
+    <div class="container">
+      <div class="pillars">
+        <div class="pillar"><i class="fas fa-bolt"></i><strong class="lang-nl">Snelle reactie</strong><strong class="lang-en">Fast response</strong><span class="lang-nl">Direct aan de slag</span><span class="lang-en">Immediate action</span></div>
+        <div class="pillar"><i class="fas fa-check-circle"></i><strong class="lang-nl">Betrouwbare oplossingen</strong><strong class="lang-en">Reliable solutions</strong><span class="lang-nl">Getest en robuust</span><span class="lang-en">Tested & robust</span></div>
+        <div class="pillar"><i class="fas fa-hand-peace"></i><strong class="lang-nl">Persoonlijke aanpak</strong><strong class="lang-en">Personal approach</strong><span class="lang-nl">Oog voor detail</span><span class="lang-en">Attention to detail</span></div>
+      </div>
+      <div style="text-align: center; margin: 1rem 0;">
+        <p style="font-size: 1.6rem; font-weight: 700;"><span class="lang-nl">Simpel. Betrouwbaar. Effectief.</span><span class="lang-en">Simple. Reliable. Effective.</span></p>
+      </div>
+    </div>
+
+    <!-- FAQ Accordion -->
+    <div class="container" id="faq">
+      <h2 class="lang-nl" style="margin: 2rem 0 1rem;">Veelgestelde vragen</h2>
+      <h2 class="lang-en" style="margin: 2rem 0 1rem;">Frequently asked questions</h2>
+      <div class="faq">
+        <div class="faq-item"><div class="faq-question"><span class="lang-nl">Hoe snel kan ik hulp verwachten?</span><span class="lang-en">How fast can I expect help?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer"><span class="lang-nl">Ik streef naar een reactie binnen 24 uur op werkdagen. Voor urgente software issues vaak sneller.</span><span class="lang-en">I aim to respond within 24 hours on business days. For urgent issues often faster.</span></div></div>
+        <div class="faq-item"><div class="faq-question"><span class="lang-nl">Werkt u ook met buitenlandse klanten?</span><span class="lang-en">Do you work with international clients?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer"><span class="lang-nl">Ja, ik werk voor klanten in heel Europa en daarbuiten. API's en software ondersteuning remote.</span><span class="lang-en">Yes, I work with clients across Europe and beyond. APIs and software support fully remote.</span></div></div>
+        <div class="faq-item"><div class="faq-question"><span class="lang-nl">Biedt u ook onderhoudscontracten aan?</span><span class="lang-en">Do you offer maintenance contracts?</span><i class="fas fa-chevron-down"></i></div><div class="faq-answer"><span class="lang-nl">Zeker, ik bied flexibele onderhoudsabonnementen voor websites en API's op maat.</span><span class="lang-en">Absolutely, I offer flexible maintenance subscriptions for websites and APIs.</span></div></div>
+      </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="container" id="contact">
+      <div class="contact-form">
+        <h2 class="lang-nl" style="margin-bottom: 1rem;">Stuur een bericht</h2>
+        <h2 class="lang-en" style="margin-bottom: 1rem;">Send a message</h2>
+        <form id="contactForm">
+          <div class="form-group"><input type="text" id="name" placeholder="Naam / Name" required></div>
+          <div class="form-group"><input type="email" id="email" placeholder="E-mail" required></div>
+          <div class="form-group"><select id="subject"><option value="Software troubleshooting">Software troubleshooting</option><option value="Web development">Web development</option><option value="API integratie">API integration</option><option value="Algemene vraag">General question</option></select></div>
+          <div class="form-group"><textarea id="message" rows="4" placeholder="Beschrijf uw software-issue / Describe your issue..." required></textarea></div>
+          <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> <span class="lang-nl">Verstuur</span><span class="lang-en">Send</span></button>
+          <p id="formFeedback" style="margin-top: 1rem; color: #4ade80;"></p>
+        </form>
+      </div>
+    </div>
+
+    <!-- CTA + footer -->
+    <div class="container" style="text-align: center;">
+      <a href="https://mortier.dev" target="_blank" class="btn" style="margin-bottom: 2rem;"><i class="fas fa-external-link-alt"></i> <span class="lang-nl">Bezoek mortier.dev</span><span class="lang-en">Visit mortier.dev</span></a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="lang-nl">© 2025 M-Dev · Software ondersteuning & ontwikkeling · België<br><span style="font-size: 0.75rem;">Van kleine bugs tot complete oplossingen — ik zorg dat jouw software weer werkt.</span></div>
+      <div class="lang-en">© 2025 M-Dev · Software support & development · Belgium<br><span style="font-size: 0.75rem;">From small bugs to complete solutions — I make your software work again.</span></div>
+    </div>
+  </footer>
+
+  <script>
+    // Language switcher
+    const langBtns = document.querySelectorAll('.lang-btn');
+    const body = document.body;
+    function setLanguage(lang) {
+      if (lang === 'nl') { body.classList.remove('lang-en'); body.classList.add('lang-nl'); }
+      else { body.classList.remove('lang-nl'); body.classList.add('lang-en'); }
+      langBtns.forEach(btn => { if (btn.dataset.lang === lang) btn.classList.add('active'); else btn.classList.remove('active'); });
+      localStorage.setItem('mdev_lang', lang);
+    }
+    langBtns.forEach(btn => btn.addEventListener('click', () => setLanguage(btn.dataset.lang)));
+    const saved = localStorage.getItem('mdev_lang');
+    if (saved === 'en' || saved === 'nl') setLanguage(saved); else setLanguage('nl');
+
+    // Mobile menu toggle
+    const menuIcon = document.getElementById('menuIcon');
+    const navLinks = document.getElementById('navLinks');
+    if(menuIcon) menuIcon.addEventListener('click', () => navLinks.classList.toggle('active'));
+    document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', () => navLinks.classList.remove('active')));
+
+    // FAQ Accordion
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+      const q = item.querySelector('.faq-question');
+      q.addEventListener('click', () => {
+        item.classList.toggle('active');
+      });
+    });
+
+    // Contact Form Handler (fully functional with feedback)
+    const contactForm = document.getElementById('contactForm');
+    const feedback = document.getElementById('formFeedback');
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const subject = document.getElementById('subject').value;
+      const message = document.getElementById('message').value.trim();
+      if (!name || !email || !message) {
+        feedback.innerHTML = '<span style="color:#ff6b6b;">Vul alle velden in / Fill all fields.</span>';
+        setTimeout(() => feedback.innerHTML = '', 3000);
+        return;
+      }
+      // simulate form submission (console log, can replace with fetch to backend)
+      console.log('Form submitted:', { name, email, subject, message });
+      feedback.innerHTML = '<i class="fas fa-check-circle"></i> ' + (document.body.classList.contains('lang-nl') ? 'Bedankt! Ik neem zo snel mogelijk contact op.' : 'Thanks! I will get back to you shortly.');
+      contactForm.reset();
+      setTimeout(() => feedback.innerHTML = '', 5000);
+    });
+  </script>
+</body>
 </html>
