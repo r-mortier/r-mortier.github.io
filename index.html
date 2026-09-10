@@ -1,658 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5" />
-  <title>wudafuh · media</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: #0a0b0e;
-      background-image: radial-gradient(circle at 10% 20%, #151015 0%, #08070a 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 2rem 1rem;
-      color: #edeef2;
-    }
-    .dashboard {
-      max-width: 1440px;
-      width: 100%;
-    }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem 1.5rem;
-      margin-bottom: 2.5rem;
-      padding: 0.2rem 0 1.2rem;
-      border-bottom: 1px solid rgba(200, 30, 30, 0.15);
-    }
-    .logo h1 {
-      font-weight: 600;
-      font-size: 2rem;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      color: #f5f0f0;
-    }
-    .logo h1 i {
-      color: #c62a2a;
-      filter: drop-shadow(0 0 10px #b31b1b55);
-      font-size: 2rem;
-    }
-    .badge {
-      background: #1f1418;
-      border: 1px solid #5f2323;
-      border-radius: 60px;
-      padding: 0.3rem 1.2rem;
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: #ecc8c8;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .badge i { color: #d94a4a; font-size: 0.6rem; }
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin-bottom: 3rem;
-    }
-    .card {
-      background: #111116;
-      border-radius: 2.4rem;
-      padding: 2rem 1.8rem;
-      border: 1px solid #2c1c1c;
-      box-shadow: 0 20px 40px -15px #000000cc, inset 0 1px 0 #3f2525;
-      transition: all 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      backdrop-filter: blur(4px);
-      background: linear-gradient(145deg, #121014, #0d0b0f);
-    }
-    .card:hover {
-      border-color: #8f2e2e;
-      box-shadow: 0 25px 45px -12px #3f0f0f88, inset 0 1px 0 #752b2b;
-      transform: translateY(-3px);
-    }
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 0.8rem;
-    }
-    .card-icon {
-      width: 3.6rem;
-      height: 3.6rem;
-      background: #1f1218;
-      border-radius: 1.8rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-      color: #e05757;
-      border: 1px solid #4d2222;
-      box-shadow: inset 0 0 12px #2b0f0f;
-    }
-    .card-title { font-weight: 600; font-size: 1.6rem; color: #f2e7e7; }
-    .card-sub { color: #a58383; font-size: 0.85rem; margin-top: -0.2rem; }
-    .card-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.7rem;
-      margin: 1.5rem 0 0.2rem;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      padding: 0.65rem 1.3rem;
-      border-radius: 3rem;
-      font-weight: 500;
-      font-size: 0.85rem;
-      text-decoration: none;
-      transition: all 0.15s ease;
-      flex: 1 0 auto;
-      min-width: 100px;
-      background: #1b1318;
-      border: 1px solid #3e2525;
-      color: #e6d6d6;
-    }
-    .btn-primary {
-      background: #9e2626;
-      border-color: #b33434;
-      color: white;
-      box-shadow: 0 6px 16px #771f1f55;
-    }
-    .btn-primary:hover {
-      background: #b83232;
-      border-color: #cd4545;
-      box-shadow: 0 10px 22px #8f262688;
-      transform: scale(1.02);
-    }
-    .btn-outline:hover { background: #281a1a; border-color: #6e3636; }
-    .btn i { opacity: 0.8; }
-
-    .section-title {
-      font-weight: 500;
-      font-size: 1.3rem;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      color: #e0d0d0;
-      border-left: 4px solid #a83b3b;
-      padding-left: 0.8rem;
-    }
-    .section-title i { color: #b64949; font-size: 1.1rem; }
-    
-    .scroll-container {
-      overflow-x: auto;
-      display: flex;
-      gap: 1.2rem;
-      padding: 0.6rem 0.2rem 1.8rem 0.2rem;
-      scrollbar-width: thin;
-      scrollbar-color: #6f2b2b #1e1418;
-      -webkit-overflow-scrolling: touch;
-    }
-    .scroll-container::-webkit-scrollbar { height: 6px; }
-    .scroll-container::-webkit-scrollbar-track { background: #1a1115; border-radius: 20px; }
-    .scroll-container::-webkit-scrollbar-thumb { background: #782e2e; border-radius: 20px; }
-
-    .media-item {
-      flex: 0 0 140px;
-      width: 140px;
-      max-width: 140px;
-      min-width: 140px;
-      background: #121015;
-      border-radius: 1.6rem;
-      padding: 0.6rem 0.6rem 0.9rem;
-      border: 1px solid #2d1f1f;
-      transition: 0.15s;
-      text-align: center;
-      backdrop-filter: blur(2px);
-      box-shadow: 0 6px 14px #00000066;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .media-item:hover {
-      border-color: #8f3b3b;
-      transform: scale(1.02);
-      background: #1c141b;
-    }
-    .media-item .media-thumb {
-      width: 100%;
-      max-width: 128px;
-      aspect-ratio: 2 / 3;
-      object-fit: cover;
-      border-radius: 1.2rem;
-      background: #20181c;
-      box-shadow: 0 8px 12px #00000055;
-      display: block;
-      max-height: 192px;
-    }
-    .media-item.music-item .media-thumb {
-      aspect-ratio: 1 / 1;
-      max-height: 128px;
-      border-radius: 0.8rem;
-    }
-    .media-item .media-title {
-      font-size: 0.7rem;
-      font-weight: 500;
-      margin-top: 0.5rem;
-      color: #dac8c8;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-      padding: 0 0.2rem;
-    }
-    .media-item .media-meta {
-      font-size: 0.6rem;
-      color: #946f6f;
-      margin-top: 0.1rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-    }
-    .empty-placeholder {
-      flex: 0 0 140px;
-      width: 140px;
-      min-width: 140px;
-      background: #141016;
-      border-radius: 1.6rem;
-      border: 1px dashed #492b2b;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #674a4a;
-      font-size: 0.75rem;
-      padding: 0.5rem;
-      aspect-ratio: 2/3;
-      text-align: center;
-    }
-    .empty-placeholder i { font-size: 2rem; color: #552b2b; margin-bottom: 0.4rem; }
-
-    .footer-note {
-      margin-top: 2.5rem;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-      font-size: 0.75rem;
-      color: #6b5252;
-      border-top: 1px solid #2f1d1d;
-      padding-top: 1.5rem;
-    }
-    .footer-note i { color: #934242; margin-right: 4px; }
-
-    @media (max-width: 600px) {
-      .dashboard { padding: 0.2rem; }
-      .card { padding: 1.5rem; }
-      .media-item { flex: 0 0 110px; width: 110px; min-width: 110px; }
-      .media-item .media-thumb { max-width: 98px; max-height: 147px; }
-      .media-item.music-item .media-thumb { max-height: 98px; }
-      .empty-placeholder { flex: 0 0 110px; width: 110px; min-width: 110px; }
-    }
-  </style>
-</head>
-<body>
-<div class="dashboard">
-
-  <div class="top-bar">
-    <div class="logo"><h1><i class="fas fa-fire"></i> wudafuh · media</h1></div>
-    <div class="badge"><i class="fas fa-circle" style="color: #c94343;"></i>  request · play · enjoy</div>
-  </div>
-
-  <div class="cards-grid">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-film"></i></div>
-        <div><div class="card-title">WudahFlix</div><div class="card-sub"><i class="far fa-calendar-alt"></i> movies · shows · anime</div></div>
-      </div>
-      <div style="font-size:0.9rem; color:#b59595; margin:0.2rem 0;">watch.wudafuh.com</div>
-      <div class="card-actions">
-        <a href="https://watch.wudafuh.com" class="btn btn-primary" target="_blank"><i class="fas fa-play"></i> Watch</a>
-        <a href="https://request.wudafuh.com" class="btn btn-outline" target="_blank"><i class="fas fa-ticket-alt"></i> Request</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0b0f" />
+    <meta property="og:title" content="@whaeeeeeee" />
+    <meta property="og:description" content="A small corner of the internet." />
+    <meta property="og:image" content="assets/img/pfp.jpg" />
+    <title>@whaeeeeeee</title>
+    <link rel="shortcut icon" href="assets/img/pfp.jpg" type="image/x-icon" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/themes.css" />
+    <script src="https://kit.fontawesome.com/b756c00e57.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
+  </head>
+  <body>
+    <div id="loading-screen" class="loading-screen">
+      <div class="loading-content">
+        <div class="loading-avatar-wrapper">
+          <div class="loading-avatar-glow"></div>
+          <img id="loading-pfp" src="assets/img/pfp.jpg" alt="whaeeeeeee" />
+          <div class="loading-ring"></div>
+        </div>
+        <div class="loading-progress-container">
+          <div class="loading-progress-track"><div class="loading-progress-bar" id="loading-progress-bar"></div></div>
+          <div class="loading-text"><span id="loading-status">Preparing your mix...</span><span id="loading-percent">0%</span></div>
+        </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon"><i class="fas fa-music"></i></div>
-        <div><div class="card-title">Wudahfy</div><div class="card-sub"><i class="fas fa-headphones"></i> music</div></div>
-      </div>
-      <div style="font-size:0.9rem; color:#b59595; margin:0.2rem 0;">play.wudafuh.com</div>
-      <div class="card-actions">
-        <a href="https://play.wudafuh.com" class="btn btn-primary" target="_blank"><i class="fas fa-play-circle"></i> Listen</a>
-        <a href="https://discover.wudafuh.com" class="btn btn-outline" target="_blank"><i class="fas fa-compact-disc"></i> Request</a>
-      </div>
-    </div>
-  </div>
+    <main>
+      <header class="profile-card">
+        <div class="profile-orbit"><img id="dc-pfp" src="assets/img/pfp.jpg" alt="whaeeeeeee profile picture" /></div>
+        <span class="eyebrow">PERSONAL SPACE / 01</span>
+        <h1 id="who">R.</h1>
+        <p id="footer">#onthegrind</p>
+      </header>
 
-  <div style="margin-top: 1rem;">
-    <div class="section-title"><i class="fas fa-clock"></i> Recently added · movies & shows</div>
-    <div class="scroll-container" id="recentMediaScroll"></div>
-  </div>
-  <div style="margin-top: 0.6rem;">
-    <div class="section-title"><i class="fas fa-calendar-plus"></i> Upcoming · movies & shows</div>
-    <div class="scroll-container" id="upcomingMediaScroll"></div>
-  </div>
-  <div style="margin-top: 0.6rem;">
-    <div class="section-title"><i class="fas fa-music"></i> Recently added · music</div>
-    <div class="scroll-container" id="recentMusicScroll"></div>
-  </div>
+      <section class="mix-card" aria-label="Music mix">
+        <div class="section-heading"><span><i class="fa-solid fa-waveform-lines"></i> my mix</span><small id="track-count">x tracks</small></div>
+        <div class="now-playing">
+          <div class="record-art" id="record-art"><img id="record-art-current" src="assets/img/pfp.jpg" alt="" /><img id="record-art-next" src="assets/img/pfp.jpg" alt="" /></div>
+          <div class="track-copy"><span class="eyebrow">NOW PLAYING</span><strong id="track-title">Choose a track</strong><span id="track-artist">the mix is ready</span></div>
+          <span id="track-time">0:00</span>
+        </div>
+        <input type="range" id="seek-bar" value="0" min="0" max="100" step="1" aria-label="Track progress" />
+        <div class="mix-controls">
+          <button id="prev" aria-label="Previous track"><i class="fa-solid fa-backward-step"></i></button>
+          <button id="play-pause" class="primary-control" aria-label="Play mix"><i class="fa-solid fa-play"></i></button>
+          <button id="next" aria-label="Next track"><i class="fa-solid fa-forward-step"></i></button>
+          <button id="volume-button" aria-label="Toggle volume"><i class="fa-solid fa-volume-high"></i></button>
+          <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.35" aria-label="Volume" />
+        </div>
+      </section>
 
-  <div class="footer-note">
-    <span><i class="fas fa-shield-alt"></i>  self-hosted media server</span>
-    <span><i class="fas fa-compact-disc"></i>  jellyfin · navidrome · seerr</span>
-  </div>
-</div>
+      <section class="friends-section" aria-label="Friends">
+        <div class="section-heading"><span><i class="fa-solid fa-sparkles"></i> friends</span><small>the inner circle</small></div>
+        <div class="pinned-friend" id="pinned-friend"></div>
+        <div class="friends-window" id="friends-scroll-container">
+          <div class="friends-track" id="friends-track"></div>
+        </div>
+      </section>
 
-<script>
-  (function() {
-    // ─── CONFIG ──────────────────────────────────────────────
-    const JELLYFIN_URL = 'https://watch.wudafuh.com';
-    const JELLYFIN_API_KEY = '0ea3a889957b4058b27ee22f14147dc7';
-    
-    // Navidrome - using your actual credentials
-    const NAVIDROME_URL = 'https://play.wudafuh.com';
-    const NAVIDROME_USER = 'ricc';
-    const NAVIDROME_PASS = '4206921';
-    
-    // ─── DOM refs ────────────────────────────────────────────
-    const recentContainer = document.getElementById('recentMediaScroll');
-    const upcomingContainer = document.getElementById('upcomingMediaScroll');
-    const musicContainer = document.getElementById('recentMusicScroll');
+      <nav class="social-links" aria-label="Social links">
+        <a href="https://www.last.fm/user/RoboCookieOff" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-lastfm"></i><span>last.fm</span><small>@RoboCookieOff</small></a>
+        <a href="https://www.instagram.com/whaeeeeeee" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-instagram"></i><span>instagram</span><small>@whaeeeeeee</small></a>
+        <a href="https://hub.docker.com/u/wxrned404" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-docker"></i><span>docker</span><small>@wxrned404</small></a>
+      </nav>
+    </main>
 
-    // ─── Helper: render media items ────────────────────────
-    function renderScroll(container, items, isMusic = false) {
-      if (!container) return;
-      container.innerHTML = '';
-      if (!items || items.length === 0) {
-        const empty = document.createElement('div');
-        empty.className = 'empty-placeholder';
-        empty.innerHTML = `<i class="fas fa-database"></i> <span>no data</span>`;
-        container.appendChild(empty);
-        return;
-      }
-      items.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'media-item' + (isMusic ? ' music-item' : '');
-        
-        // Use a data URI placeholder that will work without external requests
-        const placeholder = isMusic 
-          ? 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140"%3E%3Crect width="140" height="140" fill="%23121015"/%3E%3Ctext x="70" y="70" font-family="Arial" font-size="60" fill="%23552b2b" text-anchor="middle" dominant-baseline="central"%3E🎵%3C/text%3E%3C/svg%3E'
-          : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="140" height="210" viewBox="0 0 140 210"%3E%3Crect width="140" height="210" fill="%23121015"/%3E%3Ctext x="70" y="105" font-family="Arial" font-size="60" fill="%23552b2b" text-anchor="middle" dominant-baseline="central"%3E🎬%3C/text%3E%3C/svg%3E';
-        
-        let imgSrc = item.image || placeholder;
-        let title = item.title || 'Untitled';
-        let meta = item.meta || '';
-        
-        div.innerHTML = `
-          <img class="media-thumb" src="${imgSrc}" alt="${title}" loading="lazy" onerror="this.src='${placeholder}'">
-          <div class="media-title">${title}</div>
-          <div class="media-meta">${meta}</div>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    // ─── Fetch from Jellyfin API ────────────────────────────
-    async function fetchJellyfinItems(limit = 10, additionalParams = '') {
-      try {
-        const url = `${JELLYFIN_URL}/Items?api_key=${JELLYFIN_API_KEY}&Limit=${limit}&Recursive=true&SortBy=DateCreated&SortOrder=Descending&IncludeItemTypes=Movie,Series&Fields=PrimaryImageAspectRatio,ProductionYear,CommunityRating${additionalParams}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Jellyfin API error: ${res.status}`);
-        const data = await res.json();
-        return data.Items || [];
-      } catch (e) {
-        console.warn('Jellyfin fetch error:', e);
-        return null;
-      }
-    }
-
-    async function fetchUpcoming(limit = 8) {
-      try {
-        const url = `${JELLYFIN_URL}/Items?api_key=${JELLYFIN_API_KEY}&Limit=${limit}&Recursive=true&SortBy=PremiereDate&SortOrder=Descending&IncludeItemTypes=Movie,Series&Fields=PrimaryImageAspectRatio,ProductionYear,CommunityRating&IsAvailable=false`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Upcoming fetch error: ${res.status}`);
-        const data = await res.json();
-        return data.Items || [];
-      } catch (e) {
-        console.warn('Upcoming fetch error:', e);
-        return null;
-      }
-    }
-
-    function mapJellyfinItems(items) {
-      return items.map(item => {
-        let image = JELLYFIN_URL + '/Items/' + item.Id + '/Images/Primary?api_key=' + JELLYFIN_API_KEY;
-        if (!item.PrimaryImageAspectRatio) {
-          image = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="140" height="210" viewBox="0 0 140 210"%3E%3Crect width="140" height="210" fill="%23121015"/%3E%3Ctext x="70" y="105" font-family="Arial" font-size="60" fill="%23552b2b" text-anchor="middle" dominant-baseline="central"%3E🎬%3C/text%3E%3C/svg%3E';
-        }
-        return {
-          title: item.Name || 'Unknown',
-          meta: item.ProductionYear ? String(item.ProductionYear) : '',
-          image: image
-        };
-      });
-    }
-
-    // ─── MD5 implementation for Subsonic API ────────────────
-    function md5(string) {
-      function rotateLeft(lValue, iShiftBits) {
-        return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
-      }
-      function addUnsigned(lX, lY) {
-        let lX4, lY4, lX8, lY8, lResult;
-        lX8 = (lX & 0x80000000);
-        lY8 = (lY & 0x80000000);
-        lX4 = (lX & 0x40000000);
-        lY4 = (lY & 0x40000000);
-        lResult = (lX & 0x3FFFFFFF) + (lY & 0x3FFFFFFF);
-        if (lX4 & lY4) return (lResult ^ 0x80000000 ^ lX8 ^ lY8);
-        if (lX4 | lY4) {
-          if (lResult & 0x40000000) return (lResult ^ 0xC0000000 ^ lX8 ^ lY8);
-          else return (lResult ^ 0x40000000 ^ lX8 ^ lY8);
-        } else return (lResult ^ lX8 ^ lY8);
-      }
-      function F(x, y, z) { return (x & y) | ((~x) & z); }
-      function G(x, y, z) { return (x & z) | (y & (~z)); }
-      function H(x, y, z) { return (x ^ y ^ z); }
-      function I(x, y, z) { return (y ^ (x | (~z))); }
-      function FF(a, b, c, d, x, s, ac) {
-        a = addUnsigned(a, addUnsigned(addUnsigned(F(b, c, d), x), ac));
-        return addUnsigned(rotateLeft(a, s), b);
-      }
-      function GG(a, b, c, d, x, s, ac) {
-        a = addUnsigned(a, addUnsigned(addUnsigned(G(b, c, d), x), ac));
-        return addUnsigned(rotateLeft(a, s), b);
-      }
-      function HH(a, b, c, d, x, s, ac) {
-        a = addUnsigned(a, addUnsigned(addUnsigned(H(b, c, d), x), ac));
-        return addUnsigned(rotateLeft(a, s), b);
-      }
-      function II(a, b, c, d, x, s, ac) {
-        a = addUnsigned(a, addUnsigned(addUnsigned(I(b, c, d), x), ac));
-        return addUnsigned(rotateLeft(a, s), b);
-      }
-      function convertToWordArray(string) {
-        let lWordCount;
-        let lMessageLength = string.length;
-        let lNumberOfWords_temp1 = lMessageLength + 8;
-        let lNumberOfWords_temp2 = (lNumberOfWords_temp1 - (lNumberOfWords_temp1 % 64)) / 64;
-        let lNumberOfWords = (lNumberOfWords_temp2 + 1) * 16;
-        let lWordArray = new Array(lNumberOfWords - 1);
-        let lBytePosition = 0;
-        let lByteCount = 0;
-        while (lByteCount < lMessageLength) {
-          lWordCount = (lByteCount - (lByteCount % 4)) / 4;
-          lBytePosition = (lByteCount % 4) * 8;
-          lWordArray[lWordCount] = (lWordArray[lWordCount] | (string.charCodeAt(lByteCount) << lBytePosition));
-          lByteCount++;
-        }
-        lWordCount = (lByteCount - (lByteCount % 4)) / 4;
-        lBytePosition = (lByteCount % 4) * 8;
-        lWordArray[lWordCount] = lWordArray[lWordCount] | (0x80 << lBytePosition);
-        lWordArray[lNumberOfWords - 2] = lMessageLength << 3;
-        lWordArray[lNumberOfWords - 1] = lMessageLength >>> 29;
-        return lWordArray;
-      }
-      function wordToHex(lValue) {
-        let wordToHexValue = "", wordToHexValue_temp = "", lByte, lCount;
-        for (lCount = 0; lCount <= 3; lCount++) {
-          lByte = (lValue >>> (lCount * 8)) & 255;
-          wordToHexValue_temp = "0" + lByte.toString(16);
-          wordToHexValue = wordToHexValue + wordToHexValue_temp.substr(wordToHexValue_temp.length - 2, 2);
-        }
-        return wordToHexValue;
-      }
-      let x = convertToWordArray(string);
-      let a = 0x67452301, b = 0xEFCDAB89, c = 0x98BADCFE, d = 0x10325476;
-      let k, AA, BB, CC, DD;
-      for (k = 0; k < x.length; k += 16) {
-        AA = a; BB = b; CC = c; DD = d;
-        a = FF(a, b, c, d, x[k + 0], 7, 0xD76AA478);
-        d = FF(d, a, b, c, x[k + 1], 12, 0xE8C7B756);
-        c = FF(c, d, a, b, x[k + 2], 17, 0x242070DB);
-        b = FF(b, c, d, a, x[k + 3], 22, 0xC1BDCEEE);
-        a = FF(a, b, c, d, x[k + 4], 7, 0xF57C0FAF);
-        d = FF(d, a, b, c, x[k + 5], 12, 0x4787C62A);
-        c = FF(c, d, a, b, x[k + 6], 17, 0xA8304613);
-        b = FF(b, c, d, a, x[k + 7], 22, 0xFD469501);
-        a = FF(a, b, c, d, x[k + 8], 7, 0x698098D8);
-        d = FF(d, a, b, c, x[k + 9], 12, 0x8B44F7AF);
-        c = FF(c, d, a, b, x[k + 10], 17, 0xFFFF5BB1);
-        b = FF(b, c, d, a, x[k + 11], 22, 0x895CD7BE);
-        a = FF(a, b, c, d, x[k + 12], 7, 0x6B901122);
-        d = FF(d, a, b, c, x[k + 13], 12, 0xFD987193);
-        c = FF(c, d, a, b, x[k + 14], 17, 0xA679438E);
-        b = FF(b, c, d, a, x[k + 15], 22, 0x49B40821);
-        a = GG(a, b, c, d, x[k + 1], 5, 0xF61E2562);
-        d = GG(d, a, b, c, x[k + 6], 9, 0xC040B340);
-        c = GG(c, d, a, b, x[k + 11], 14, 0x265E5A51);
-        b = GG(b, c, d, a, x[k + 0], 20, 0xE9B6C7AA);
-        a = GG(a, b, c, d, x[k + 5], 5, 0xD62F105D);
-        d = GG(d, a, b, c, x[k + 10], 9, 0x02441453);
-        c = GG(c, d, a, b, x[k + 15], 14, 0xD8A1E681);
-        b = GG(b, c, d, a, x[k + 4], 20, 0xE7D3FBC8);
-        a = GG(a, b, c, d, x[k + 9], 5, 0x21E1CDE6);
-        d = GG(d, a, b, c, x[k + 14], 9, 0xC33707D6);
-        c = GG(c, d, a, b, x[k + 3], 14, 0xF4D50D87);
-        b = GG(b, c, d, a, x[k + 8], 20, 0x455A14ED);
-        a = GG(a, b, c, d, x[k + 13], 5, 0xA9E3E905);
-        d = GG(d, a, b, c, x[k + 2], 9, 0xFCEFA3F8);
-        c = GG(c, d, a, b, x[k + 7], 14, 0x676F02D9);
-        b = GG(b, c, d, a, x[k + 12], 20, 0x8D2A4C8A);
-        a = HH(a, b, c, d, x[k + 5], 4, 0xFFFA3942);
-        d = HH(d, a, b, c, x[k + 8], 11, 0x8771F681);
-        c = HH(c, d, a, b, x[k + 11], 16, 0x6D9D6122);
-        b = HH(b, c, d, a, x[k + 14], 23, 0xFDE5380C);
-        a = HH(a, b, c, d, x[k + 1], 4, 0xA4BEEA44);
-        d = HH(d, a, b, c, x[k + 4], 11, 0x4BDECFA9);
-        c = HH(c, d, a, b, x[k + 7], 16, 0xF6BB4B60);
-        b = HH(b, c, d, a, x[k + 10], 23, 0xBEBFBC70);
-        a = HH(a, b, c, d, x[k + 13], 4, 0x289B7EC6);
-        d = HH(d, a, b, c, x[k + 0], 11, 0xEAA127FA);
-        c = HH(c, d, a, b, x[k + 3], 16, 0xD4EF3085);
-        b = HH(b, c, d, a, x[k + 6], 23, 0x04881D05);
-        a = HH(a, b, c, d, x[k + 9], 4, 0xD9D4D039);
-        d = HH(d, a, b, c, x[k + 12], 11, 0xE6DB99E5);
-        c = HH(c, d, a, b, x[k + 15], 16, 0x1FA27CF8);
-        b = HH(b, c, d, a, x[k + 2], 23, 0xC4AC5665);
-        a = II(a, b, c, d, x[k + 0], 6, 0xF4292244);
-        d = II(d, a, b, c, x[k + 7], 10, 0x432AFF97);
-        c = II(c, d, a, b, x[k + 14], 15, 0xAB9423A7);
-        b = II(b, c, d, a, x[k + 5], 21, 0xFC93A039);
-        a = II(a, b, c, d, x[k + 12], 6, 0x655B59C3);
-        d = II(d, a, b, c, x[k + 3], 10, 0x8F0CCC92);
-        c = II(c, d, a, b, x[k + 10], 15, 0xFFEFF47D);
-        b = II(b, c, d, a, x[k + 1], 21, 0x85845DD1);
-        a = II(a, b, c, d, x[k + 8], 6, 0x6FA87E4F);
-        d = II(d, a, b, c, x[k + 15], 10, 0xFE2CE6E0);
-        c = II(c, d, a, b, x[k + 6], 15, 0xA3014314);
-        b = II(b, c, d, a, x[k + 13], 21, 0x4E0811A1);
-        a = II(a, b, c, d, x[k + 4], 6, 0xF7537E82);
-        d = II(d, a, b, c, x[k + 11], 10, 0xBD3AF235);
-        c = II(c, d, a, b, x[k + 2], 15, 0x2AD7D2BB);
-        b = II(b, c, d, a, x[k + 9], 21, 0xEB86D391);
-        a = addUnsigned(a, AA);
-        b = addUnsigned(b, BB);
-        c = addUnsigned(c, CC);
-        d = addUnsigned(d, DD);
-      }
-      return (wordToHex(a) + wordToHex(b) + wordToHex(c) + wordToHex(d)).toLowerCase();
-    }
-
-    // ─── Fetch from Navidrome using Subsonic API ────────────
-    async function fetchNavidromeRecent(limit = 10) {
-      try {
-        const salt = Math.random().toString(36).substring(2, 10);
-        const token = md5(NAVIDROME_PASS + salt);
-        
-        const url = `${NAVIDROME_URL}/rest/getAlbumList2?type=recent&size=${limit}&u=${NAVIDROME_USER}&t=${token}&s=${salt}&v=1.16.1&c=media-dashboard&f=json`;
-        
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Subsonic API error: ${res.status}`);
-        const data = await res.json();
-        
-        if (data['subsonic-response']) {
-          const response = data['subsonic-response'];
-          if (response.status === 'ok' && response.albumList2) {
-            return response.albumList2.album || [];
-          } else if (response.status === 'failed') {
-            throw new Error(`Subsonic error: ${response.error?.message || 'Unknown error'}`);
-          }
-        }
-        throw new Error('Subsonic response format unexpected');
-      } catch (e) {
-        console.warn('Navidrome fetch error:', e);
-        return null;
-      }
-    }
-
-    function mapNavidromeItems(albums) {
-      const albumList = Array.isArray(albums) ? albums : [];
-      return albumList.map(album => {
-        const name = album.name || 'Unknown Album';
-        const artist = album.artist || '';
-        const coverArt = album.coverArtId || album.coverArt;
-        
-        let image;
-        if (coverArt) {
-          // Use Subsonic cover art endpoint with token auth
-          const salt = Math.random().toString(36).substring(2, 10);
-          const token = md5(NAVIDROME_PASS + salt);
-          image = `${NAVIDROME_URL}/rest/getCoverArt?id=${coverArt}&u=${NAVIDROME_USER}&t=${token}&s=${salt}&v=1.16.1&c=media-dashboard`;
-        } else {
-          image = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140"%3E%3Crect width="140" height="140" fill="%23121015"/%3E%3Ctext x="70" y="70" font-family="Arial" font-size="60" fill="%23552b2b" text-anchor="middle" dominant-baseline="central"%3E🎵%3C/text%3E%3C/svg%3E';
-        }
-        return {
-          title: name,
-          meta: artist,
-          image: image
-        };
-      });
-    }
-
-    // ─── Load everything ─────────────────────────────────────
-    async function loadDashboard() {
-      // 1. Recent movies/shows
-      const recentItems = await fetchJellyfinItems(10);
-      if (recentItems && recentItems.length) {
-        renderScroll(recentContainer, mapJellyfinItems(recentItems));
-      } else {
-        const fallback = [
-          { title: 'Dune: Part Two', meta: '2024', image: null },
-          { title: 'Furiosa', meta: '2024', image: null },
-          { title: 'Inside Out 2', meta: '2024', image: null },
-        ];
-        renderScroll(recentContainer, fallback);
-      }
-
-      // 2. Upcoming movies/shows
-      const upcomingItems = await fetchUpcoming(8);
-      if (upcomingItems && upcomingItems.length) {
-        renderScroll(upcomingContainer, mapJellyfinItems(upcomingItems));
-      } else {
-        const fallback = [
-          { title: 'Deadpool & Wolverine', meta: '2024', image: null },
-          { title: 'Gladiator 2', meta: '2024', image: null },
-          { title: 'Mufasa', meta: '2024', image: null },
-        ];
-        renderScroll(upcomingContainer, fallback);
-      }
-
-      // 3. Music - fetch from Navidrome
-      const musicItems = await fetchNavidromeRecent(10);
-      if (musicItems && musicItems.length) {
-        renderScroll(musicContainer, mapNavidromeItems(musicItems), true);
-      } else {
-        const fallback = [
-          { title: 'Radical Optimism', meta: 'Dua Lipa', image: null },
-          { title: 'Hit Me Hard and Soft', meta: 'Billie Eilish', image: null },
-          { title: 'COWBOY CARTER', meta: 'Beyoncé', image: null },
-        ];
-        renderScroll(musicContainer, fallback, true);
-      }
-    }
-
-    loadDashboard();
-  })();
-</script>
-</body>
+    <canvas id="particles-canvas"></canvas>
+    <audio id="audio" preload="metadata"></audio>
+    <script src="assets/js/loadAssets.js"></script>
+    <script src="assets/js/player.js"></script>
+    <!-- <script src="assets/js/friends.js"></script> -->
+    <script src="assets/js/loading.js"></script>
+    <script src="assets/js/particles.js"></script>
+  </body>
 </html>

@@ -1,0 +1,48 @@
+@font-face {
+    font-family: 'Font Awesome 6 Brands';
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url(fa-brands-400.woff2) format('woff2')
+}
+
+.fa-brands {
+    font-family: 'Font Awesome 6 Brands';
+    font-weight: 400
+}
+
+.telegram:before {
+    content: '\f2c6'
+}
+
+.instagram:before {
+    content: '\f16d'
+}
+
+.github:before {
+    content: '\f09b'
+}
+
+.tiktok:before {
+    content: '\e07b'
+}
+
+.twitter:before {
+    content: '\f099'
+}
+
+.discord:before {
+    content: '\f392'
+}
+
+.twitch:before {
+    content: '\f1e8'
+}
+
+.soundcloud:before {
+    content: '\f1be'
+}
+
+.youtube:before {
+    content: '\f167'
+}
