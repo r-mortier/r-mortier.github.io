@@ -32,6 +32,7 @@ let playing = false;
 let transitionStarted = false;
 let transitionId = 0;
 let transitionTimer = null;
+let tempoResetTimer = null;
 let targetVolume = Number(volumeSlider.value);
 let nextAudio = new Audio();
 nextAudio.preload = "auto";
@@ -119,6 +120,28 @@ async function analyseTrack(track) {
 function getTempoRatio(currentBpm, nextBpm) {
   if (!currentBpm || !nextBpm) return 1;
   return Math.min(1.08, Math.max(0.92, currentBpm / nextBpm));
+}
+
+function restoreNativeTempo(deck, startingRate) {
+  if (tempoResetTimer !== null) window.clearTimeout(tempoResetTimer);
+  if (Math.abs(startingRate - 1) < 0.001) {
+    deck.playbackRate = 1;
+    tempoResetTimer = null;
+    return;
+  }
+  const startedAt = performance.now();
+  const duration = 2400;
+  const restore = () => {
+    const progress = Math.min(1, (performance.now() - startedAt) / duration);
+    const easedProgress = progress * progress * (3 - 2 * progress);
+    deck.playbackRate = startingRate + (1 - startingRate) * easedProgress;
+    if (progress < 1) tempoResetTimer = window.setTimeout(restore, 50);
+    else {
+      deck.playbackRate = 1;
+      tempoResetTimer = null;
+    }
+  };
+  restore();
 }
 
 function renderTrack() {
@@ -309,12 +332,14 @@ async function startCrossfade() {
   }
   const finishTransition = () => {
     if (currentTransitionId !== transitionId) return;
+    const mixedTempo = standbyAudio.playbackRate;
     activeAudio.pause();
     const oldAudio = activeAudio;
     activeAudio = standbyAudio;
     standbyAudio = oldAudio;
     activeAudio.volume = targetVolume;
     standbyAudio.volume = 0;
+    restoreNativeTempo(activeAudio, mixedTempo);
     setBassGain(activeAudio, 0);
     setBassGain(standbyAudio, 0);
     current = nextIndex;
@@ -352,6 +377,10 @@ function skipTo(index) {
   if (transitionTimer !== null) {
     window.clearTimeout(transitionTimer);
     transitionTimer = null;
+  }
+  if (tempoResetTimer !== null) {
+    window.clearTimeout(tempoResetTimer);
+    tempoResetTimer = null;
   }
   current = (index + mixQueue.length) % mixQueue.length;
   analyserState.lastBeatAudioTime = null;
