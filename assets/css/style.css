@@ -1304,12 +1304,22 @@ body.beat-hit .mix-card { animation: beatGlow .5s cubic-bezier(.2,.8,.2,1); }
   height: 5px;
   border-radius: 999px;
   outline: none;
-  background: linear-gradient(to right, var(--accent-color) 0%, var(--accent-color) calc(var(--range-progress, 0) * 1%), rgba(255,255,255,.13) calc(var(--range-progress, 0) * 1%), rgba(255,255,255,.13) 100%);
+  background: linear-gradient(to right, var(--seek-progress-color, var(--accent-color)) 0%, var(--seek-progress-color, var(--accent-color)) calc(var(--range-progress, 0) * 1%), var(--seek-track-color, rgba(255,255,255,.13)) calc(var(--range-progress, 0) * 1%), var(--seek-track-color, rgba(255,255,255,.13)) 100%);
 }
 #seek-bar { width: 100%; margin: 10px 0 12px; }
+#seek-bar {
+  transition: background .7s ease, box-shadow .7s ease;
+}
+#seek-bar.is-crossfading {
+  --seek-progress-color: #fff;
+  --seek-track-color: rgba(255,255,255,.3);
+  box-shadow: 0 0 12px rgba(255,255,255,.38), 0 0 5px var(--accent-color);
+}
 #volume-slider { position: static; width: 84px; opacity: 1; visibility: visible; transform: none; background: linear-gradient(to right, var(--accent-color) 0%, var(--accent-color) calc(var(--volume-progress, 35) * 1%), rgba(255,255,255,.13) calc(var(--volume-progress, 35) * 1%), rgba(255,255,255,.13) 100%); }
 #seek-bar::-webkit-slider-thumb, #volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border: 2px solid #fff; border-radius: 50%; background: var(--accent-color); box-shadow: 0 2px 7px rgba(0,0,0,.35); }
+#seek-bar.is-crossfading::-webkit-slider-thumb { background: #fff; box-shadow: 0 0 9px rgba(255,255,255,.6); }
 #seek-bar::-moz-range-thumb, #volume-slider::-moz-range-thumb { width: 12px; height: 12px; border: 2px solid #fff; border-radius: 50%; background: var(--accent-color); }
+#seek-bar.is-crossfading::-moz-range-thumb { background: #fff; box-shadow: 0 0 9px rgba(255,255,255,.6); }
 
 /* Prevent legacy button:hover rules from changing dimensions and shifting
    icons. Hover only scales the fixed control in place. */

@@ -31,6 +31,7 @@ let current = 0;
 let playing = false;
 let transitionStarted = false;
 let transitionId = 0;
+let transitionTimer = null;
 let targetVolume = Number(volumeSlider.value);
 let nextAudio = new Audio();
 nextAudio.preload = "auto";
@@ -38,10 +39,86 @@ let activeAudio = audio;
 let standbyAudio = nextAudio;
 let artworkRequest = 0;
 
-const analyserState = { context: null, analyser: null, data: null, lastEnergy: 0, lastBeat: 0 };
+const analyserState = { context: null, analyser: null, data: null, lastEnergy: 0, lastBeat: 0, lastBeatAudioTime: null };
+const audioEffects = new Map();
+const trackAnalysis = new Map();
+const DEFAULT_BPM = 120;
+const MIN_BPM = 70;
+const MAX_BPM = 180;
+const MIX_BASS_CUT = -10;
+const MAX_CROSSFADE_MS = 10000;
 
 function formatTime(seconds) {
   return Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}` : "0:00";
+}
+
+function estimateBpm(buffer) {
+  const channel = buffer.getChannelData(0);
+  const windowSize = 2048;
+  const hopSize = 1024;
+  const energies = [];
+  for (let offset = 0; offset + windowSize < channel.length; offset += hopSize) {
+    let energy = 0;
+    for (let sample = offset; sample < offset + windowSize; sample += 32) {
+      energy += Math.abs(channel[sample]);
+    }
+    energies.push(energy / (windowSize / 32));
+  }
+  if (energies.length < 8) return DEFAULT_BPM;
+
+  const average = energies.reduce((sum, energy) => sum + energy, 0) / energies.length;
+  const variance = energies.reduce((sum, energy) => sum + (energy - average) ** 2, 0) / energies.length;
+  const deviation = Math.sqrt(variance);
+  const onsets = [];
+  for (let index = 1; index < energies.length; index += 1) {
+    const rise = energies[index] - energies[index - 1];
+    if (rise > deviation * 0.7 && energies[index] > average * 1.1) onsets.push(index);
+  }
+  if (onsets.length < 3) return DEFAULT_BPM;
+
+  const intervals = [];
+  for (let index = 1; index < onsets.length; index += 1) {
+    const seconds = (onsets[index] - onsets[index - 1]) * hopSize / buffer.sampleRate;
+    if (seconds >= 60 / MAX_BPM && seconds <= 60 / MIN_BPM) intervals.push(seconds);
+  }
+  if (!intervals.length) return DEFAULT_BPM;
+  intervals.sort((a, b) => a - b);
+  const interval = intervals[Math.floor(intervals.length / 2)];
+  let bpm = 60 / interval;
+  while (bpm < MIN_BPM) bpm *= 2;
+  while (bpm > MAX_BPM) bpm /= 2;
+  return Math.round(bpm);
+}
+
+async function analyseTrack(track) {
+  if (trackAnalysis.has(track.path)) return trackAnalysis.get(track.path);
+  const pending = (async () => {
+    try {
+      if (!["http:", "https:"].includes(window.location.protocol)) return { bpm: DEFAULT_BPM };
+      const response = await fetch(track.path);
+      if (!response.ok) throw new Error(`Track analysis failed: ${response.status}`);
+      const bytes = await response.arrayBuffer();
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return { bpm: DEFAULT_BPM };
+      const context = new AudioContext();
+      try {
+        const buffer = await context.decodeAudioData(bytes);
+        return { bpm: estimateBpm(buffer) };
+      } finally {
+        await context.close();
+      }
+    } catch (error) {
+      console.warn(`Unable to analyse BPM for ${track.title}; using ${DEFAULT_BPM} BPM.`, error);
+      return { bpm: DEFAULT_BPM };
+    }
+  })();
+  trackAnalysis.set(track.path, pending);
+  return pending;
+}
+
+function getTempoRatio(currentBpm, nextBpm) {
+  if (!currentBpm || !nextBpm) return 1;
+  return Math.min(1.08, Math.max(0.92, currentBpm / nextBpm));
 }
 
 function renderTrack() {
@@ -133,8 +210,16 @@ function setupAnalyser() {
     analyserState.analyser = analyserState.context.createAnalyser();
     analyserState.analyser.fftSize = 256;
     analyserState.data = new Uint8Array(analyserState.analyser.frequencyBinCount);
-    analyserState.context.createMediaElementSource(activeAudio).connect(analyserState.analyser);
-    analyserState.context.createMediaElementSource(standbyAudio).connect(analyserState.analyser);
+    [activeAudio, standbyAudio].forEach((deck) => {
+      const source = analyserState.context.createMediaElementSource(deck);
+      const bassFilter = analyserState.context.createBiquadFilter();
+      bassFilter.type = "lowshelf";
+      bassFilter.frequency.value = 180;
+      bassFilter.gain.value = 0;
+      source.connect(bassFilter);
+      bassFilter.connect(analyserState.analyser);
+      audioEffects.set(deck, { bassFilter });
+    });
     analyserState.analyser.connect(analyserState.context.destination);
   } catch (error) {
     analyserState.context?.close();
@@ -143,6 +228,13 @@ function setupAnalyser() {
     analyserState.data = null;
     console.warn("Beat analysis unavailable; using native audio playback.", error);
   }
+
+}
+
+function setBassGain(deck, gain) {
+  const effect = audioEffects.get(deck);
+  if (!effect || !analyserState.context) return;
+  effect.bassFilter.gain.setTargetAtTime(gain, analyserState.context.currentTime, 0.08);
 }
 
 function monitorBeat() {
@@ -152,6 +244,7 @@ function monitorBeat() {
     const now = performance.now();
     if (energy > Math.max(105, analyserState.lastEnergy * 1.35) && now - analyserState.lastBeat > 180) {
       analyserState.lastBeat = now;
+      analyserState.lastBeatAudioTime = activeAudio.currentTime;
       document.body.classList.remove("beat-hit");
       requestAnimationFrame(() => document.body.classList.add("beat-hit"));
     }
@@ -161,24 +254,43 @@ function monitorBeat() {
 }
 
 function preloadNext() {
-  standbyAudio.src = mixQueue[(current + 1) % mixQueue.length].path;
+  const nextTrack = mixQueue[(current + 1) % mixQueue.length];
+  standbyAudio.src = nextTrack.path;
   standbyAudio.load();
+  analyseTrack(nextTrack);
 }
 
-function startCrossfade() {
+async function startCrossfade() {
   if (transitionStarted || !playing || !Number.isFinite(activeAudio.duration)) return;
   transitionStarted = true;
+  seekBar.classList.add("is-crossfading");
   const currentTransitionId = ++transitionId;
   const nextIndex = (current + 1) % mixQueue.length;
   const nextTrack = mixQueue[nextIndex];
+  const [currentAnalysis, nextAnalysis] = await Promise.all([
+    analyseTrack(mixQueue[current]),
+    analyseTrack(nextTrack)
+  ]);
+  if (currentTransitionId !== transitionId) return;
   recordArt.classList.add("is-crossfading");
   loadArtwork(nextTrack, nextArtEl);
   standbyAudio.volume = 0;
+  standbyAudio.playbackRate = 1;
   standbyAudio.currentTime = 0;
+  setBassGain(activeAudio, 0);
+  setBassGain(standbyAudio, MIX_BASS_CUT);
   let nextStarted = false;
+  let incomingStartedAt = null;
+  const tempoRatio = getTempoRatio(currentAnalysis.bpm, nextAnalysis.bpm);
+  const beatInterval = 60 / currentAnalysis.bpm;
+  const beatPhase = Number.isFinite(analyserState.lastBeatAudioTime)
+    ? activeAudio.currentTime - analyserState.lastBeatAudioTime
+    : activeAudio.currentTime;
+  const beatDelay = Math.min(beatInterval, beatInterval - (beatPhase % beatInterval));
   const startIncoming = () => {
-    if (nextStarted) return;
+    if (nextStarted || currentTransitionId !== transitionId) return;
     nextStarted = true;
+    incomingStartedAt = performance.now();
     standbyAudio.play().catch(() => {
       if (currentTransitionId !== transitionId) return;
       nextStarted = false;
@@ -186,47 +298,70 @@ function startCrossfade() {
       skipTo(nextIndex);
     });
   };
-  if (standbyAudio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
-    startIncoming();
-  } else {
-    standbyAudio.addEventListener("canplay", startIncoming, { once: true });
-    standbyAudio.load();
-    window.setTimeout(startIncoming, 900);
-  }
-  const start = performance.now();
   const remainingMs = Math.max(0, (activeAudio.duration - activeAudio.currentTime) * 1000);
-  const duration = Math.min(6200, Math.max(800, remainingMs - 250));
-  const fade = (now) => {
+  const duration = Math.min(MAX_CROSSFADE_MS, Math.max(800, remainingMs - beatDelay * 1000 - 250));
+  if (standbyAudio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+    window.setTimeout(startIncoming, beatDelay * 1000);
+  } else {
+    standbyAudio.addEventListener("canplay", () => window.setTimeout(startIncoming, beatDelay * 1000), { once: true });
+    standbyAudio.load();
+    window.setTimeout(startIncoming, Math.max(900, beatDelay * 1000));
+  }
+  const finishTransition = () => {
     if (currentTransitionId !== transitionId) return;
-    const progress = Math.min(1, (now - start) / duration);
+    activeAudio.pause();
+    const oldAudio = activeAudio;
+    activeAudio = standbyAudio;
+    standbyAudio = oldAudio;
+    activeAudio.volume = targetVolume;
+    standbyAudio.volume = 0;
+    setBassGain(activeAudio, 0);
+    setBassGain(standbyAudio, 0);
+    current = nextIndex;
+    analyserState.lastBeatAudioTime = null;
+    transitionStarted = false;
+    transitionTimer = null;
+    seekBar.classList.remove("is-crossfading");
+    setPlaying(true);
+    artEl.src = nextArtEl.src || fallbackArt;
+    renderTrack();
+    preloadNext();
+  };
+  const fade = () => {
+    if (currentTransitionId !== transitionId) return;
+    const now = performance.now();
+    const progress = incomingStartedAt === null
+      ? 0
+      : Math.min(1, Math.max(0, (now - incomingStartedAt) / duration));
     activeAudio.volume = targetVolume * (1 - progress);
     standbyAudio.volume = targetVolume * progress;
-    if (progress < 1) requestAnimationFrame(fade);
-    else {
-      // The incoming deck is already playing. Swap references instead of
-      // pausing/reloading it, which would create a gap between songs.
-      activeAudio.pause();
-      const oldAudio = activeAudio;
-      activeAudio = standbyAudio;
-      standbyAudio = oldAudio;
-      activeAudio.volume = targetVolume;
-      standbyAudio.volume = 0;
-      current = nextIndex;
-      transitionStarted = false;
-      setPlaying(true);
-      artEl.src = nextArtEl.src || fallbackArt;
-      renderTrack();
-      preloadNext();
-    }
+    setBassGain(activeAudio, MIX_BASS_CUT * progress);
+    setBassGain(standbyAudio, MIX_BASS_CUT * (1 - progress));
+    const tempoProgress = incomingStartedAt === null
+      ? 0
+      : Math.min(1, (now - incomingStartedAt) / Math.min(4500, duration));
+    standbyAudio.playbackRate = 1 + (tempoRatio - 1) * tempoProgress;
+    if (progress < 1) transitionTimer = window.setTimeout(fade, 50);
+    else finishTransition();
   };
-  requestAnimationFrame(fade);
+  fade();
 }
 
 function skipTo(index) {
   transitionId += 1;
+  if (transitionTimer !== null) {
+    window.clearTimeout(transitionTimer);
+    transitionTimer = null;
+  }
   current = (index + mixQueue.length) % mixQueue.length;
+  analyserState.lastBeatAudioTime = null;
   transitionStarted = false;
+  seekBar.classList.remove("is-crossfading");
   activeAudio.pause();
+  setBassGain(activeAudio, 0);
+  setBassGain(standbyAudio, 0);
+  activeAudio.playbackRate = 1;
+  standbyAudio.playbackRate = 1;
   activeAudio.src = mixQueue[current].path;
   activeAudio.load();
   renderTrack();
@@ -269,12 +404,19 @@ function handleTimeUpdate(event) {
   }
   timeEl.textContent = `${formatTime(activeAudio.currentTime)} / ${formatTime(activeAudio.duration)}`;
   const timeRemaining = activeAudio.duration - activeAudio.currentTime;
-  if (timeRemaining <= 7) startCrossfade();
+  if (timeRemaining <= 16) startCrossfade();
 }
 audio.addEventListener("timeupdate", handleTimeUpdate);
 standbyAudio.addEventListener("timeupdate", handleTimeUpdate);
 function handleEnded(event) {
-  if (event.currentTarget === activeAudio && !transitionStarted) skipTo(current + 1);
+  if (event.currentTarget !== activeAudio) return;
+  if (!transitionStarted) {
+    skipTo(current + 1);
+    return;
+  }
+  // Background tabs can delay transition timers. Keep the incoming deck
+  // running if the outgoing deck reaches its natural end first.
+  if (standbyAudio.paused) standbyAudio.play().catch(() => skipTo(current + 1));
 }
 audio.addEventListener("ended", handleEnded);
 standbyAudio.addEventListener("ended", handleEnded);
